@@ -10,7 +10,8 @@ from opencood.utils.transformation_utils import dist_to_continuous
 from opencood.data_utils.post_processor.base_postprocessor \
     import BasePostprocessor
 from opencood.utils import box_utils
-from opencood.visualization import vis_utils
+
+
 class BevPostprocessor(BasePostprocessor):
     def __init__(self, anchor_params, train):
         super(BevPostprocessor, self).__init__(anchor_params, train)
@@ -437,6 +438,7 @@ class BevPostprocessor(BasePostprocessor):
             opencood dataset object.
         """
         assert dataset is not None, "dataset argument can't be None"
+        from opencood.visualization import vis_utils
         vis_utils.visualize_single_sample_output_bev(pred_box_tensor,
                                                     gt_tensor,
                                                     pcd,
