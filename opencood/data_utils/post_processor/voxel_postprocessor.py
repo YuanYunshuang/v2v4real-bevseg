@@ -13,6 +13,7 @@ from opencood.data_utils.post_processor.base_postprocessor \
     import BasePostprocessor
 from opencood.utils import box_utils
 from opencood.utils.box_overlaps import bbox_overlaps
+from opencood.visualization import vis_utils
 
 
 class VoxelPostprocessor(BasePostprocessor):
@@ -423,7 +424,6 @@ class VoxelPostprocessor(BasePostprocessor):
             opencood dataset object.
 
         """
-        from opencood.visualization import vis_utils
         vis_utils.visualize_single_sample_output_gt(pred_box_tensor,
                                                     gt_tensor,
                                                     pcd,

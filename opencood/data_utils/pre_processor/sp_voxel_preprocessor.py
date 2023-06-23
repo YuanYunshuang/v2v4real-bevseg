@@ -6,7 +6,6 @@ import sys
 import numpy as np
 import torch
 from cumm import tensorview as tv
-from spconv.utils import Point2VoxelCPU3d
 
 from opencood.data_utils.pre_processor.base_preprocessor import \
     BasePreprocessor
@@ -30,14 +29,33 @@ class SpVoxelPreprocessor(BasePreprocessor):
                      np.array(self.lidar_range[0:3])) / np.array(self.voxel_size)
         self.grid_size = np.round(grid_size).astype(np.int64)
 
+        try:
+            from spconv.utils import VoxelGeneratorV2 as VoxelGenerator
+            self.spconv_ver = 1
+        except:
+            try:
+                from spconv.utils import VoxelGenerator
+                self.spconv_ver = 1
+            except:
+                from spconv.utils import Point2VoxelCPU3d as VoxelGenerator
+                self.spconv_ver = 2
         # use sparse conv library to generate voxel
-        self.voxel_generator = Point2VoxelCPU3d(
-            vsize_xyz=self.voxel_size,
-            coors_range_xyz=self.lidar_range,
-            max_num_points_per_voxel=self.max_points_per_voxel,
-            num_point_features=4,
-            max_num_voxels=self.max_voxels
-        )
+        if self.spconv_ver == 1:
+            self._voxel_generator = VoxelGenerator(
+                voxel_size=self.voxel_size,
+                point_cloud_range=self.lidar_range,
+                max_num_points=self.max_points_per_voxel,
+                max_voxels=self.max_voxels
+            )
+        else:
+
+            self.voxel_generator = VoxelGenerator(
+                vsize_xyz=self.voxel_size,
+                coors_range_xyz=self.lidar_range,
+                max_num_points_per_voxel=self.max_points_per_voxel,
+                num_point_features=4,
+                max_num_voxels=self.max_voxels
+            )
 
     def preprocess(self, pcd_np):
         data_dict = {}
