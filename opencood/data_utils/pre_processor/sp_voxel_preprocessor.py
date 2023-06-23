@@ -41,7 +41,7 @@ class SpVoxelPreprocessor(BasePreprocessor):
                 self.spconv_ver = 2
         # use sparse conv library to generate voxel
         if self.spconv_ver == 1:
-            self._voxel_generator = VoxelGenerator(
+            self.voxel_generator = VoxelGenerator(
                 voxel_size=self.voxel_size,
                 point_cloud_range=self.lidar_range,
                 max_num_points=self.max_points_per_voxel,
