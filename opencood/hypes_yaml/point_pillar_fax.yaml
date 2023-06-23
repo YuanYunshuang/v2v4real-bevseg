@@ -143,5 +143,5 @@ lr_scheduler:
 #    warmup_lr: 2e-4
 #    warmup_epoches: 10
 #    lr_min: 2e-5
-    milestones: [30, 50]
+    step_size: [30, 50]
     gamma: 0.1
