@@ -8,6 +8,7 @@ from collections import OrderedDict
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
+import cv2
 
 import opencood.data_utils.datasets
 import opencood.data_utils.post_processor as post_processor
@@ -20,6 +21,7 @@ from opencood.utils.pcd_utils import \
     downsample_lidar_minimum
 from opencood.utils.transformation_utils import x1_to_x2, dist_two_pose
 from opencood.data_utils.augmentor.data_augmentor import DataAugmentor
+from opencood.utils.box_utils import boxes_to_corners2d
 
 
 class IntermediateFusionDataset(basedataset.BaseDataset):
@@ -205,6 +207,9 @@ class IntermediateFusionDataset(basedataset.BaseDataset):
             processed_data_dict['ego'].update({'origin_lidar':
                 np.vstack(
                     projected_lidar_stack)})
+
+        self.get_dynamic_bev_map(processed_data_dict)
+
         return processed_data_dict
 
     def get_item_single_car(self, selected_cav_base, ego_pose):
@@ -468,16 +473,47 @@ class IntermediateFusionDataset(basedataset.BaseDataset):
 
         return pairwise_t_matrix
 
+    def get_dynamic_bev_map(self, processed_data_dict):
+        bbx_center = processed_data_dict['ego']['object_bbx_center']
+        bbx_mask = processed_data_dict['ego']['object_bbx_mask']
+        bbxs = boxes_to_corners2d(bbx_center[bbx_mask.astype(bool)], 'hwl')
+        lidar_range = self.params['preprocess']['cav_lidar_range']
+        resolution = self.params['preprocess']['bev_map_resolution']
+
+        w = round((lidar_range[3] - lidar_range[0]) / resolution)
+        h = round((lidar_range[4] - lidar_range[1]) / resolution)
+        buf = np.zeros((h, w), dtype=np.uint8)
+        bev_map = np.zeros((h, w), dtype=np.uint8)
+
+        for box in bbxs:
+            box[:, 0] = (box[:, 0] - lidar_range[0]) / resolution
+            box[:, 1] = (box[:, 1] - lidar_range[1]) / resolution
+            buf.fill(0)
+            cv2.fillPoly(buf, [box[:, :2].round().astype(np.int32)], 1, cv2.INTER_LINEAR)
+            bev_map[buf > 0] = 1
+
+        processed_data_dict['ego']['label_dict']['gt_dynamic'] = bev_map
+        processed_data_dict['ego']['label_dict']['gt_static'] = None
+
+        # import matplotlib.pyplot as plt
+        # pts = np.concatenate(
+        #     processed_data_dict['ego']['processed_lidar']['voxel_coords'] , axis=0)
+        # bev_map[pts[:, 1], pts[:, 2]] = 100
+        # plt.imshow(bev_map)
+        # plt.show()
+        # plt.close()
+        # pass
+
 
 if __name__ == '__main__':
-    params = load_yaml('./opencood/hypes_yaml/point_pillar_transformer.yaml')
+    params = load_yaml('/mars/projects20/V2V4Real/opencood/hypes_yaml/point_pillar_fax.yaml')
 
     opencda_dataset = IntermediateFusionDataset(params,
                                                 train=True,
                                                 visualize=True)
-    data_loader = DataLoader(opencda_dataset, batch_size=2, num_workers=10,
+    data_loader = DataLoader(opencda_dataset, batch_size=2, num_workers=2,
                              collate_fn=opencda_dataset.collate_batch_train,
-                             shuffle=False,
+                             shuffle=True,
                              pin_memory=False)
     import time
 

@@ -212,11 +212,15 @@ class VoxelPostprocessor(BasePostprocessor):
         pos_equal_one = []
         neg_equal_one = []
         targets = []
+        bev_static = []
+        bev_dynamic = []
 
         for i in range(len(label_batch_list)):
             pos_equal_one.append(label_batch_list[i]['pos_equal_one'])
             neg_equal_one.append(label_batch_list[i]['neg_equal_one'])
             targets.append(label_batch_list[i]['targets'])
+            bev_dynamic.append(label_batch_list[i].get('gt_dynamic', None))
+            bev_static.append(label_batch_list[i].get('gt_static', None))
 
         pos_equal_one = \
             torch.from_numpy(np.array(pos_equal_one))
@@ -224,10 +228,20 @@ class VoxelPostprocessor(BasePostprocessor):
             torch.from_numpy(np.array(neg_equal_one))
         targets = \
             torch.from_numpy(np.array(targets))
+        if bev_dynamic[0] is not None:
+            bev_dynamic = torch.from_numpy(np.array(bev_dynamic))
+        else:
+            bev_dynamic = None
+        if bev_static[0] is not None:
+            bev_static = torch.from_numpy(np.array(bev_static))
+        else:
+            bev_static = None
 
         return {'targets': targets,
                 'pos_equal_one': pos_equal_one,
-                'neg_equal_one': neg_equal_one}
+                'neg_equal_one': neg_equal_one,
+                'gt_dynamic': bev_dynamic,
+                'gt_static': bev_static}
 
     def post_process(self, data_dict, output_dict):
         """

@@ -247,6 +247,6 @@ def to_device(inputs, device):
         return {k: to_device(v, device) for k, v in inputs.items()}
     else:
         if isinstance(inputs, int) or isinstance(inputs, float) \
-                or isinstance(inputs, str):
+                or isinstance(inputs, str) or inputs is None:
             return inputs
         return inputs.to(device)
