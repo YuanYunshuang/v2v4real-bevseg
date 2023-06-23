@@ -87,17 +87,10 @@ class SpVoxelPreprocessor(BasePreprocessor):
 
     def preprocess(self, pcd_np):
         data_dict = {}
-        voxel_output = self.voxel_generator.generate(pcd_np)
-        if isinstance(voxel_output, dict):
-            voxels, coordinates, num_points = \
-                voxel_output['voxels'], voxel_output['coordinates'], \
-                voxel_output['num_points_per_voxel']
-        else:
-            voxels, coordinates, num_points = voxel_output
-
-        data_dict['voxel_features'] = voxels.numpy()
-        data_dict['voxel_coords'] = coordinates.numpy()
-        data_dict['voxel_num_points'] = num_points.numpy()
+        voxels, coordinates, num_points = self.voxel_generator.generate(pcd_np)
+        data_dict['voxel_features'] = voxels
+        data_dict['voxel_coords'] = coordinates
+        data_dict['voxel_num_points'] = num_points
 
         return data_dict
 
