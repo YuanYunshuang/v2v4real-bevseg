@@ -66,8 +66,10 @@ def setup_train(hypes):
     folder_name = current_time.strftime("_%Y_%m_%d_%H_%M_%S")
     folder_name = model_name + folder_name
 
-    current_path = os.path.dirname(__file__)
-    current_path = os.path.join(current_path, '../logs')
+    current_path = hypes.get('log_dir', None)
+    if current_path is None:
+        current_path = os.path.dirname(__file__)
+        current_path = os.path.join(current_path, '../logs')
 
     full_path = os.path.join(current_path, folder_name)
 
