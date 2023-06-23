@@ -59,7 +59,7 @@ class VanillaSegLoss(nn.Module):
             # plt.imshow(img)
             # plt.show()
             # plt.close()
-
+            print(dynamic_gt.dtype)
             dynamic_loss = self.loss_func_dynamic(dynamic_pred, dynamic_gt)
             total_loss += self.d_coe * dynamic_loss
             self.loss_dict.update({'dynamic_loss': dynamic_loss})
