@@ -23,8 +23,9 @@ def regroup(dense_feature, record_len, max_len):
     regroup_feature : torch.Tensor
         B, L, C, H, W
     """
-    cum_sum_len = list(np.cumsum(torch_tensor_to_numpy(record_len)))
-    split_features = torch.split(dense_feature, cum_sum_len[:-1])
+    # cum_sum_len = list(np.cumsum(torch_tensor_to_numpy(record_len)))
+    # split_features = torch.tensor_split(dense_feature, cum_sum_len[:-1])
+    split_features = torch.split(dense_feature, [n.item() for n in record_len])
     regroup_features = []
     mask = []
 
