@@ -701,17 +701,19 @@ def visualize_sequence_dataloader(dataloader, order, color_mode='constant'):
                                                    order,
                                                    mode=color_mode,
                                                    visualize=False )
+
             if i_batch == 0:
                 vis.add_geometry(pcd)
+                if len(aabbs) > 0:
+                    for i in range(len(vis_aabbs)):
+                        index = i if i < len(aabbs) else -1
+                        vis_aabbs[i] = lineset_assign(vis_aabbs[i], aabbs[index])
+                        vis.add_geometry(vis_aabbs[i])
+            if len(aabbs) > 0:
                 for i in range(len(vis_aabbs)):
                     index = i if i < len(aabbs) else -1
                     vis_aabbs[i] = lineset_assign(vis_aabbs[i], aabbs[index])
-                    vis.add_geometry(vis_aabbs[i])
-
-            for i in range(len(vis_aabbs)):
-                index = i if i < len(aabbs) else -1
-                vis_aabbs[i] = lineset_assign(vis_aabbs[i], aabbs[index])
-                vis.update_geometry(vis_aabbs[i])
+                    vis.update_geometry(vis_aabbs[i])
 
             vis.update_geometry(pcd)
             vis.poll_events()

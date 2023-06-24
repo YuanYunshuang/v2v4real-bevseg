@@ -6,6 +6,8 @@ from opencood.hypes_yaml.yaml_utils import load_yaml
 from opencood.visualization import vis_utils
 from opencood.data_utils.datasets.early_fusion_vis_dataset import \
     EarlyFusionVisDataset
+from opencood.data_utils.datasets.intermediate_fusion_dataset import \
+    IntermediateFusionDataset
 
 
 def vis_parser():
@@ -21,10 +23,12 @@ def vis_parser():
 if __name__ == '__main__':
     current_path = os.path.dirname(os.path.realpath(__file__))
     opt = vis_parser()
+    # params = load_yaml(os.path.join(current_path,
+    #                                 '../hypes_yaml/visualization.yaml'))
     params = load_yaml(os.path.join(current_path,
-                                    '../hypes_yaml/visualization.yaml'))
+                                    '../hypes_yaml/point_pillar_fax.yaml'))
 
-    opencda_dataset = EarlyFusionVisDataset(params, visualize=True,
+    opencda_dataset = IntermediateFusionDataset(params, visualize=True,
                                             train=False, isSim=opt.isSim)
     data_loader = DataLoader(opencda_dataset, batch_size=1, num_workers=8,
                              collate_fn=opencda_dataset.collate_batch_train,
