@@ -52,6 +52,7 @@ class AttFusion(nn.Module):
         return torch.cat(out, dim=0)
 
     def regroup(self, x, record_len):
-        cum_sum_len = torch.cumsum(record_len, dim=0)
-        split_x = torch.tensor_split(x, cum_sum_len[:-1].cpu())
+        # cum_sum_len = torch.cumsum(record_len, dim=0)
+        # split_x = torch.tensor_split(x, cum_sum_len[:-1].cpu())
+        split_x = torch.split(x, [n.item() for n in record_len])
         return split_x
