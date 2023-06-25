@@ -4,6 +4,8 @@ import time
 
 import torch
 import open3d as o3d
+import cv2
+import numpy as np
 from torch.utils.data import DataLoader
 
 import opencood.hypes_yaml.yaml_utils as yaml_utils
@@ -104,28 +106,25 @@ def main():
             torch.cuda.synchronize()
             batch_data = train_utils.to_device(batch_data, device)
             if opt.fusion_method == 'nofusion':
-                pred_box_tensor, pred_score, gt_box_tensor = \
-                    infrence_utils.inference_no_fusion(batch_data,
+                res = infrence_utils.inference_no_fusion(batch_data,
                                                        model,
                                                        opencood_dataset)
-            elif opt.fusion_method == 'late':
-                pred_box_tensor, pred_score, gt_box_tensor = \
-                    infrence_utils.inference_late_fusion(batch_data,
-                                                         model,
-                                                         opencood_dataset)
-            elif opt.fusion_method == 'early':
-                pred_box_tensor, pred_score, gt_box_tensor = \
-                    infrence_utils.inference_early_fusion(batch_data,
-                                                          model,
-                                                          opencood_dataset)
-            elif opt.fusion_method == 'intermediate':
-                pred_box_tensor, pred_score, gt_box_tensor = \
-                    infrence_utils.inference_intermediate_fusion(batch_data,
-                                                                 model,
-                                                                 opencood_dataset)
             else:
-                raise NotImplementedError('Only early, late and intermediate'
-                                          'fusion is supported.')
+                fusion_fn = getattr(infrence_utils,
+                                    f'inference_{opt.fusion_method}_fusion',
+                                    None)
+                if fusion_fn is None:
+                    raise NotImplementedError('Only early, late and intermediate'
+                                              'fusion is supported.')
+                else:
+                    res = fusion_fn(batch_data, model, opencood_dataset)
+
+            if len(res) == 3:
+                pred_box_tensor, pred_score, gt_box_tensor = res
+                pred_bev = None
+            elif len(res) == 4:
+                pred_box_tensor, pred_score, pred_bev, gt_box_tensor = res
+
             # overall calculating
             eval_utils.caluclate_tp_fp(pred_box_tensor,
                                        pred_score,
@@ -210,9 +209,16 @@ def main():
                                                       'origin_lidar'][0],
                                                   opt.show_vis,
                                                   vis_save_path,
-                                                  dataset=opencood_dataset)
+                                                  dataset=opencood_dataset,
+                                                  bev_map=pred_bev)
 
             if opt.show_sequence:
+                if pred_bev is not None:
+                    bev_map_np = pred_bev[0].permute(1, 2, 0).detach().cpu().numpy()
+                    img = np.zeros((*bev_map_np.shape[:2], 3)).astype(np.int8)
+                    img[..., 2] = np.clip(np.round(bev_map_np[..., 0] * 255), a_min=0, a_max=155).astype(np.int8)
+                    cv2.imshow('bev_map', img[::-1, ::-1])
+                    cv2.waitKey(1)
                 pcd, pred_o3d_box, gt_o3d_box = \
                     vis_utils.visualize_inference_sample_dataloader(
                         pred_box_tensor,

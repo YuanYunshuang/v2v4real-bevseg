@@ -8,6 +8,7 @@ import numpy as np
 import torch
 from torch.nn.functional import sigmoid
 import torch.nn.functional as F
+import cv2
 
 from opencood.data_utils.post_processor.base_postprocessor \
     import BasePostprocessor
@@ -248,7 +249,8 @@ class VoxelPostprocessor(BasePostprocessor):
         Process the outputs of the model to 2D/3D bounding box.
         Step1: convert each cav's output to bounding box format
         Step2: project the bounding boxes to ego space.
-        Step:3 NMS
+        Step3: NMS
+        step4: (optional) generate bev maps
 
         Parameters
         ----------
@@ -348,7 +350,19 @@ class VoxelPostprocessor(BasePostprocessor):
 
         assert scores.shape[0] == pred_box3d_tensor.shape[0]
 
-        return pred_box3d_tensor, scores
+        # get bev map
+        pred_bev_list = []
+
+        for cav_id, cav_content in data_dict.items():
+            if cav_id not in output_dict:
+                continue
+            if 'dynamic_seg' in output_dict[cav_id]:
+                seg = output_dict[cav_id]['dynamic_seg'].softmax(dim=2) # b l c h w
+                assert seg.shape[0] == 1
+                seg = seg[0, 0]  # c h w
+                pred_bev_list.append(seg)
+
+        return pred_box3d_tensor, scores, pred_bev_list
 
     @staticmethod
     def delta_to_boxes3d(deltas, anchors):
@@ -399,7 +413,7 @@ class VoxelPostprocessor(BasePostprocessor):
         return boxes3d
 
     @staticmethod
-    def visualize(pred_box_tensor, gt_tensor, pcd, show_vis, save_path, dataset=None):
+    def visualize(pred_box_tensor, gt_tensor, pcd, show_vis, save_path, dataset=None, bev_map=None):
         """
         Visualize the prediction, ground truth with point cloud together.
 
@@ -424,8 +438,17 @@ class VoxelPostprocessor(BasePostprocessor):
             opencood dataset object.
 
         """
+        if bev_map is not None:
+            bev_map_np = bev_map[0].permute(1, 2, 0).detach().cpu().numpy()
+            img = np.zeros((*bev_map_np.shape[:2], 3)).astype(np.int8)
+            img[..., 2] = np.clip(np.round(bev_map_np[..., 0] * 255), a_min=0, a_max=155).astype(np.int8)
+            cv2.imshow('bev_map', img[::-1, ::-1])
+            cv2.waitKey(1)
+
         vis_utils.visualize_single_sample_output_gt(pred_box_tensor,
                                                     gt_tensor,
                                                     pcd,
                                                     show_vis,
                                                     save_path)
+
+

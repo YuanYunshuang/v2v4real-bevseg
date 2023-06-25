@@ -589,10 +589,12 @@ class BaseDataset(Dataset):
                          pcd,
                          show_vis,
                          save_path,
-                         dataset=None):
+                         dataset=None,
+                         bev_map=None):
         self.post_processor.visualize(pred_box_tensor,
                                       gt_tensor,
                                       pcd,
                                       show_vis,
                                       save_path,
-                                      dataset=dataset)
+                                      dataset=dataset,
+                                      bev_map=bev_map)
