@@ -42,8 +42,9 @@ class V2VNetFusion(nn.Module):
         self.mlp = nn.Linear(in_channels, in_channels)
 
     def regroup(self, x, record_len):
-        cum_sum_len = torch.cumsum(record_len, dim=0)
-        split_x = torch.tensor_split(x, cum_sum_len[:-1].cpu())
+        # cum_sum_len = torch.cumsum(record_len, dim=0)
+        # split_x = torch.tensor_split(x, cum_sum_len[:-1].cpu())
+        split_x = torch.split(x, [n.item() for n in record_len])
         return split_x
 
     def forward(self, x, record_len, pairwise_t_matrix, prior_encoding):
