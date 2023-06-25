@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from einops import rearrange
 
 from opencood.models.sub_modules.pillar_vfe import PillarVFE
 from opencood.models.sub_modules.point_pillar_scatter import PointPillarScatter
@@ -7,6 +8,8 @@ from opencood.models.sub_modules.base_bev_backbone import BaseBEVBackbone
 from opencood.models.sub_modules.fuse_utils import regroup
 from opencood.models.sub_modules.downsample_conv import DownsampleConv
 from opencood.models.sub_modules.naive_compress import NaiveCompressor
+from opencood.models.sub_modules.naive_decoder import NaiveDecoder
+from opencood.models.sub_modules.bev_seg_head import BevSegHead
 from opencood.models.sub_modules.self_attn import AttFusion
 
 
@@ -42,6 +45,16 @@ class PointPillarOPV2V(nn.Module):
 
         if args['backbone_fix']:
             self.backbone_fix()
+
+        # decoder params
+        decoder_params = args['decoder']
+        # decoder for dynamic and static differet
+        self.decoder = NaiveDecoder(decoder_params)
+
+        self.target = args['target']
+        self.seg_head = BevSegHead(self.target,
+                                   args['seg_head_dim'],
+                                   args['output_class'])
 
     def backbone_fix(self):
         """
@@ -102,7 +115,15 @@ class PointPillarOPV2V(nn.Module):
         psm = self.cls_head(fused_feature)
         rm = self.reg_head(fused_feature)
 
-        output_dict = {'psm': psm,
-                       'rm': rm}
+        # dynamic head
+        x = self.decoder(fused_feature.unsqueeze(1))
+        x = rearrange(x, 'b l c h w -> (b l) c h w')
+        b = x.shape[0]
+        output_dict = self.seg_head(x, b, 1)
+
+        output_dict.update(
+            {'psm': psm,
+             'rm': rm}
+        )
 
         return output_dict

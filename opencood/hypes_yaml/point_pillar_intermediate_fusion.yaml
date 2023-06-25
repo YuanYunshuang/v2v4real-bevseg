@@ -1,6 +1,8 @@
+#
 name: point_pillar_intermediate_fusion
-root_dir: '/data/v2vreal/train'
-validate_dir: '/data/v2vreal/validate'
+root_dir: '/koko/v2vreal/train'
+validate_dir: '/koko/v2vreal/test'
+log_dir: '/koko/v2vreal-out'
 
 
 yaml_parser: "load_point_pillar_params"
@@ -33,7 +35,8 @@ preprocess:
     max_voxel_train: 32000
     max_voxel_test: 70000
   # lidar range for each individual cav.
-  cav_lidar_range: &cav_lidar [-140.8, -38.4, -3, 140.8, 38.4, 1]
+  cav_lidar_range: &cav_lidar [-102.4, -38.4, -5, 102.4, 38.4, 3]
+  bev_map_resolution: 0.4
 
 data_augment:
   - NAME: random_world_flip

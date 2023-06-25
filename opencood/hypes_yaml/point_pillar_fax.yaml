@@ -91,19 +91,19 @@ model:
     base_bev_backbone:
       layer_nums: [3, 5, 8]
       layer_strides: [2, 2, 2]
-      num_filters: [64, 128, 128]
+      num_filters: [64, 128, 256]
       upsample_strides: [1, 2, 4]
       num_upsample_filter: [128, 128, 128]
     shrink_header:
       kernal_size: [3]
       stride: [2]
       padding: [1]
-      dim: [128]
+      dim: [256]
       input_dim: 384 # 128 * 3
 
     fax_fusion:
-      input_dim: 128
-      mlp_dim: 128
+      input_dim: 256
+      mlp_dim: 256
       agent_size: *max_cav
       window_size: 4
       dim_head: 32
@@ -113,7 +113,7 @@ model:
 
 
     decoder:
-      input_dim: 128
+      input_dim: 256
       num_layer: 2
       num_ch_dec: &decoder_block [ 64, 128 ]
 
