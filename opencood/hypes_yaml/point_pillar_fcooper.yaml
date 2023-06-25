@@ -104,7 +104,7 @@ model:
       # add decoder later
 
     decoder:
-      input_dim: 128
+      input_dim: 256
       num_layer: 2
       num_ch_dec: &decoder_block [ 64, 128 ]
 
