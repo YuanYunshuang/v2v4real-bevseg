@@ -253,6 +253,10 @@ class BaseDataset(Dataset):
                 cav_content[timestamp_key_delay]['lidar'].split('/')[-3]
             data[cav_id]['index'] = timestamp_index
             data[cav_id]['cav_id'] = int(cav_id)
+            data[cav_id]['frame_id'] = (
+                data[cav_id]['folder_name'],
+                cav_content[timestamp_key_delay]['lidar'].split('/')[-1][:-4]
+            )
         return data
 
     @staticmethod

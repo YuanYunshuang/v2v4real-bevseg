@@ -201,7 +201,8 @@ class IntermediateFusionDataset(basedataset.BaseDataset):
              'time_delay': time_delay,
              'infra': infra,
              'spatial_correction_matrix': spatial_correction_matrix,
-             'pairwise_t_matrix': pairwise_t_matrix})
+             'pairwise_t_matrix': pairwise_t_matrix,
+             'frame_id': base_data_dict[ego_id]['frame_id']})
 
         if self.visualize:
             processed_data_dict['ego'].update({'origin_lidar':
@@ -397,7 +398,8 @@ class IntermediateFusionDataset(basedataset.BaseDataset):
                                    'object_ids': object_ids[0],
                                    'prior_encoding': prior_encoding,
                                    'spatial_correction_matrix': spatial_correction_matrix_list,
-                                   'pairwise_t_matrix': pairwise_t_matrix})
+                                   'pairwise_t_matrix': pairwise_t_matrix,
+                                   'frame_id': [b['ego']['frame_id'] for b in batch]})
 
         if self.visualize:
             origin_lidar = \

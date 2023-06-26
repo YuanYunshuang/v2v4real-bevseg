@@ -12,7 +12,7 @@ import opencood.hypes_yaml.yaml_utils as yaml_utils
 from opencood.tools import train_utils, infrence_utils
 from opencood.data_utils.datasets import build_dataset
 from opencood.visualization import vis_utils
-from opencood.utils import eval_utils
+from opencood.utils import eval_utils, box_utils
 
 
 def test_parser():
@@ -30,8 +30,9 @@ def test_parser():
     parser.add_argument('--save_vis', action='store_true',
                         help='whether to save visualization result')
     parser.add_argument('--save_npy', action='store_true',
-                        help='whether to save prediction and gt result'
-                             'in npy file')
+                        help='whether to save prediction and gt result')
+    parser.add_argument('--save_evibev', action='store_true',
+                        help='set true to skip evaluation for now and save result in evibev format for later evaluation')
     parser.add_argument('--isSim', action='store_true',
                         help='whether to save prediction and gt result'
                              'in npy file')
@@ -125,64 +126,86 @@ def main():
             elif len(res) == 4:
                 pred_box_tensor, pred_score, pred_bev, gt_box_tensor = res
 
-            # overall calculating
-            eval_utils.caluclate_tp_fp(pred_box_tensor,
-                                       pred_score,
-                                       gt_box_tensor,
-                                       result_stat,
-                                       0.5)
-            eval_utils.caluclate_tp_fp(pred_box_tensor,
-                                       pred_score,
-                                       gt_box_tensor,
-                                       result_stat,
-                                       0.7)
-            # short range
-            eval_utils.caluclate_tp_fp(pred_box_tensor,
-                                       pred_score,
-                                       gt_box_tensor,
-                                       result_stat_short,
-                                       0.5,
-                                       left_range=0,
-                                       right_range=30)
-            eval_utils.caluclate_tp_fp(pred_box_tensor,
-                                       pred_score,
-                                       gt_box_tensor,
-                                       result_stat_short,
-                                       0.7,
-                                       left_range=0,
-                                       right_range=30)
+            if opt.save_evibev:
+                pred_boxes = box_utils.corner_to_center(pred_box_tensor.detach().cpu().numpy())
+                gt_boxes = box_utils.corner_to_center(gt_box_tensor.detach().cpu().numpy())
+                evidence = torch.stack([bev.permute(1, 2, 0) for bev in pred_bev], dim=0)
+                device = pred_box_tensor.device
+                cur_dict = {
+                    'frame_id': batch_data['ego']['frame_id'],
+                    'detection': {
+                        'pred_boxes': torch.from_numpy(pred_boxes).to(device),
+                        'pred_scores': pred_score,
+                    },
+                    'target_boxes': torch.from_numpy(gt_boxes).to(device),
+                    'distr_object': {
+                        'evidence': evidence,
+                        'obs_mask': None,
+                        'Nall': None,
+                        'Nsel': None
+                    }
+                }
+                frame_id = '_'.join(batch_data['ego']['frame_id'][0])
+                torch.save(cur_dict, os.path.join(opt.model_dir, f'{frame_id}.pth'))
+            else:
+                # overall calculating
+                eval_utils.caluclate_tp_fp(pred_box_tensor,
+                                           pred_score,
+                                           gt_box_tensor,
+                                           result_stat,
+                                           0.5)
+                eval_utils.caluclate_tp_fp(pred_box_tensor,
+                                           pred_score,
+                                           gt_box_tensor,
+                                           result_stat,
+                                           0.7)
+                # short range
+                eval_utils.caluclate_tp_fp(pred_box_tensor,
+                                           pred_score,
+                                           gt_box_tensor,
+                                           result_stat_short,
+                                           0.5,
+                                           left_range=0,
+                                           right_range=30)
+                eval_utils.caluclate_tp_fp(pred_box_tensor,
+                                           pred_score,
+                                           gt_box_tensor,
+                                           result_stat_short,
+                                           0.7,
+                                           left_range=0,
+                                           right_range=30)
 
-            # middle range
-            eval_utils.caluclate_tp_fp(pred_box_tensor,
-                                       pred_score,
-                                       gt_box_tensor,
-                                       result_stat_middle,
-                                       0.5,
-                                       left_range=30,
-                                       right_range=50)
-            eval_utils.caluclate_tp_fp(pred_box_tensor,
-                                       pred_score,
-                                       gt_box_tensor,
-                                       result_stat_middle,
-                                       0.7,
-                                       left_range=30,
-                                       right_range=50)
+                # middle range
+                eval_utils.caluclate_tp_fp(pred_box_tensor,
+                                           pred_score,
+                                           gt_box_tensor,
+                                           result_stat_middle,
+                                           0.5,
+                                           left_range=30,
+                                           right_range=50)
+                eval_utils.caluclate_tp_fp(pred_box_tensor,
+                                           pred_score,
+                                           gt_box_tensor,
+                                           result_stat_middle,
+                                           0.7,
+                                           left_range=30,
+                                           right_range=50)
 
-            # right range
-            eval_utils.caluclate_tp_fp(pred_box_tensor,
-                                       pred_score,
-                                       gt_box_tensor,
-                                       result_stat_long,
-                                       0.5,
-                                       left_range=50,
-                                       right_range=100)
-            eval_utils.caluclate_tp_fp(pred_box_tensor,
-                                       pred_score,
-                                       gt_box_tensor,
-                                       result_stat_long,
-                                       0.7,
-                                       left_range=50,
-                                       right_range=100)
+                # right range
+                eval_utils.caluclate_tp_fp(pred_box_tensor,
+                                           pred_score,
+                                           gt_box_tensor,
+                                           result_stat_long,
+                                           0.5,
+                                           left_range=50,
+                                           right_range=100)
+                eval_utils.caluclate_tp_fp(pred_box_tensor,
+                                           pred_score,
+                                           gt_box_tensor,
+                                           result_stat_long,
+                                           0.7,
+                                           left_range=50,
+                                           right_range=100)
 
             if opt.save_npy:
                 npy_save_path = os.path.join(opt.model_dir, 'npy')
@@ -250,17 +273,18 @@ def main():
                 vis.update_renderer()
                 time.sleep(0.001)
 
-    eval_utils.eval_final_results(result_stat,
-                                  opt.model_dir)
-    eval_utils.eval_final_results(result_stat_short,
-                                  opt.model_dir,
-                                  "short")
-    eval_utils.eval_final_results(result_stat_middle,
-                                  opt.model_dir,
-                                  "middle")
-    eval_utils.eval_final_results(result_stat_long,
-                                  opt.model_dir,
-                                  "long")
+    if not opt.save_evibev:
+        eval_utils.eval_final_results(result_stat,
+                                      opt.model_dir)
+        eval_utils.eval_final_results(result_stat_short,
+                                      opt.model_dir,
+                                      "short")
+        eval_utils.eval_final_results(result_stat_middle,
+                                      opt.model_dir,
+                                      "middle")
+        eval_utils.eval_final_results(result_stat_long,
+                                      opt.model_dir,
+                                      "long")
     if opt.show_sequence:
         vis.destroy_window()
 
