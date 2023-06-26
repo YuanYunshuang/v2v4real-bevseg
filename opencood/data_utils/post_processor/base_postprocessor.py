@@ -84,7 +84,7 @@ class BasePostprocessor(object):
             object_id_list += object_ids
 
         # gt bbx 3d
-        gt_box3d_list = torch.vstack(gt_box3d_list)
+        gt_box3d_list = torch.cat(gt_box3d_list, dim=0)
         # some of the bbx may be repetitive, use the id list to filter
         #gt_box3d_selected_indices = [i for i, n in enumerate(object_id_list) if n == -1]
         gt_box3d_selected_indices = \
