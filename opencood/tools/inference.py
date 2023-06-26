@@ -47,6 +47,8 @@ def main():
         'you can only visualize ' \
         'the results in single ' \
         'image mode or video mode'
+    test_dir = os.path.join(opt.model_dir, 'test')
+    os.makedirs(test_dir)
 
     hypes = yaml_utils.load_yaml(None, opt)
 
@@ -146,7 +148,7 @@ def main():
                     }
                 }
                 frame_id = '_'.join(batch_data['ego']['frame_id'][0])
-                torch.save(cur_dict, os.path.join(opt.model_dir, f'{frame_id}.pth'))
+                torch.save(cur_dict, os.path.join(test_dir, f'{frame_id}.pth'))
             else:
                 # overall calculating
                 eval_utils.caluclate_tp_fp(pred_box_tensor,

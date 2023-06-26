@@ -325,11 +325,11 @@ class VoxelPostprocessor(BasePostprocessor):
         if len(pred_box2d_list) ==0 or len(pred_box3d_list) == 0:
             return None, None
         # shape: (N, 5)
-        pred_box2d_list = torch.vstack(pred_box2d_list)
+        pred_box2d_list = torch.cat(pred_box2d_list, dim=0)
         # scores
         scores = pred_box2d_list[:, -1]
         # predicted 3d bbx
-        pred_box3d_tensor = torch.vstack(pred_box3d_list)
+        pred_box3d_tensor = torch.cat(pred_box3d_list, dim=0)
 
         # nms
         keep_index = box_utils.nms_rotated(pred_box3d_tensor,
