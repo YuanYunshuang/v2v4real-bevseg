@@ -48,7 +48,7 @@ def main():
         'the results in single ' \
         'image mode or video mode'
     test_dir = os.path.join(opt.model_dir, 'test')
-    os.makedirs(test_dir)
+    os.makedirs(test_dir, exist_ok=True)
 
     hypes = yaml_utils.load_yaml(None, opt)
 
