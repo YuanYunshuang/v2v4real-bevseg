@@ -129,9 +129,12 @@ def main():
                 pred_box_tensor, pred_score, pred_bev, gt_box_tensor = res
 
             if opt.save_evibev:
+                padding = ((0, 0), (1, 0))
                 pred_boxes = box_utils.corner_to_center(pred_box_tensor.detach().cpu().numpy())
+                pred_boxes = np.pad(pred_boxes, padding, mode='constant', constant_values=0)
                 gt_boxes = box_utils.corner_to_center(gt_box_tensor.detach().cpu().numpy())
-                evidence = torch.stack([bev.permute(1, 2, 0) for bev in pred_bev], dim=0)
+                gt_boxes = np.pad(gt_boxes, padding, mode='constant', constant_values=0)
+                evidence = torch.stack([bev.permute(2, 1, 0) for bev in pred_bev], dim=0)
                 device = pred_box_tensor.device
                 cur_dict = {
                     'frame_id': batch_data['ego']['frame_id'],
