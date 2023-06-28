@@ -8,8 +8,8 @@ wild_setting:
   async_overhead: 100
   seed: 20
   loc_err: false
-  xyz_std: 0.2
-  ryp_std: 0.2
+  xyz_std: 1.0
+  ryp_std: 1.0
   data_size: 1.06 # Mb!!
   transmission_speed: 27 # Mbps!!
   backbone_delay: 10 # ms

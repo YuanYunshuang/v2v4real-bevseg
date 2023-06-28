@@ -9,6 +9,7 @@ from collections import OrderedDict
 import torch
 import numpy as np
 from torch.utils.data import Dataset
+from scipy.spatial.transform.rotation import Rotation as R
 
 import opencood.utils.pcd_utils as pcd_utils
 from opencood.data_utils.augmentor.data_augmentor import DataAugmentor
@@ -385,12 +386,21 @@ class BaseDataset(Dataset):
             np.random.seed(self.seed)
         xyz_noise = np.random.normal(0, xyz_std, 3)
         ryp_std = np.random.normal(0, ryp_std, 3)
-        noise_pose = [pose[0] + xyz_noise[0],
-                      pose[1] + xyz_noise[1],
-                      pose[2] + xyz_noise[2],
-                      pose[3],
-                      pose[4] + ryp_std[1],
-                      pose[5]]
+        ryp_std[:2] = 0
+        if isinstance(pose, list):
+            noise_pose = [pose[0] + xyz_noise[0],
+                          pose[1] + xyz_noise[1],
+                          pose[2] + xyz_noise[2],
+                          pose[3],
+                          pose[4] + ryp_std[1],
+                          pose[5]]
+        elif isinstance(pose, np.ndarray):
+            noise_pose = np.eye(4)
+            rot_mat = R.from_euler('xyz', ryp_std, degrees=True).as_matrix()
+            noise_pose[:3, :3] = rot_mat @ pose[:3, :3]
+            noise_pose[:3, 3] = pose[:3, 3] + xyz_noise
+        else:
+            raise NotImplementedError
         return noise_pose
 
     def reform_param(self, cav_content, ego_content, timestamp_cur,

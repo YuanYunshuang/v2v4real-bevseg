@@ -8,7 +8,7 @@ wild_setting:
   async_mode: 'real'
   async_overhead: 100
   seed: 20
-  loc_err: false
+  loc_err: true
   xyz_std: 0.2
   ryp_std: 0.2
   data_size: 1.06 # Mb!!
@@ -17,7 +17,7 @@ wild_setting:
 
 yaml_parser: "load_point_pillar_params"
 train_params:
-  batch_size: &batch_size 4
+  batch_size: &batch_size 1
   epoches: &epoches 60
   eval_freq: 1
   save_freq: 1
@@ -108,11 +108,11 @@ model:
       downsample_rate: 4
       num_iteration: 1
       in_channels: 256
-      gru_flag: false
+      gru_flag: true
       agg_operator: "avg" # max or avg
       conv_gru:
         H: 48
-        W: 176
+        W: 128
         num_layers: 1
         kernel_size: [[3,3]]
 
