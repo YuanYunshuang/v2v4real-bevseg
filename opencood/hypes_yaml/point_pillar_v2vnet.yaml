@@ -8,7 +8,7 @@ wild_setting:
   async_mode: 'real'
   async_overhead: 100
   seed: 20
-  loc_err: true
+  loc_err: false
   xyz_std: 0.2
   ryp_std: 0.2
   data_size: 1.06 # Mb!!
