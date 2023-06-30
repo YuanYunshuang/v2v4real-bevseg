@@ -108,11 +108,11 @@ class VanillaSegLoss(nn.Module):
                       epoch, batch_id + 1, batch_len,
                       total_loss.item(), static_loss.item(), dynamic_loss.item()))
 
-
-        writer.add_scalar('Static_loss', static_loss.item(),
-                          epoch*batch_len + batch_id)
-        writer.add_scalar('Dynamic_loss', dynamic_loss.item(),
-                          epoch*batch_len + batch_id)
+        if writer is not None:
+            writer.add_scalar('Static_loss', static_loss.item(),
+                              epoch*batch_len + batch_id)
+            writer.add_scalar('Dynamic_loss', dynamic_loss.item(),
+                              epoch*batch_len + batch_id)
 
 
 

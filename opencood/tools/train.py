@@ -9,7 +9,10 @@ import statistics
 
 import torch
 import tqdm
-from tensorboardX import SummaryWriter
+try:
+    from tensorboardX import SummaryWriter
+except:
+    SummaryWriter = None
 from torch.utils.data import DataLoader, DistributedSampler
 
 import opencood.hypes_yaml.yaml_utils as yaml_utils
@@ -114,7 +117,10 @@ def main():
     scheduler = train_utils.setup_lr_schedular(hypes, optimizer, num_steps)
 
     # record training
-    writer = SummaryWriter(saved_path)
+    if SummaryWriter is not None:
+        writer = SummaryWriter(saved_path)
+    else:
+        write = None
 
     # half precision training
     if opt.half:
@@ -198,7 +204,8 @@ def main():
             valid_ave_loss = statistics.mean(valid_ave_loss)
             print('At epoch %d, the validation loss is %f' % (epoch,
                                                               valid_ave_loss))
-            writer.add_scalar('Validate_Loss', valid_ave_loss, epoch)
+            if SummaryWriter is not None:
+                writer.add_scalar('Validate_Loss', valid_ave_loss, epoch)
 
     print('Training Finished, checkpoints saved to %s' % saved_path)
 
