@@ -14,7 +14,10 @@ from opencood.data_utils.post_processor.base_postprocessor \
     import BasePostprocessor
 from opencood.utils import box_utils
 from opencood.utils.box_overlaps import bbox_overlaps
-from opencood.visualization import vis_utils
+try:
+    from opencood.visualization import vis_utils
+except:
+    vis_utils = None
 
 
 class VoxelPostprocessor(BasePostprocessor):
@@ -444,7 +447,9 @@ class VoxelPostprocessor(BasePostprocessor):
             img[..., 2] = np.clip(np.round(bev_map_np[..., 0] * 255), a_min=0, a_max=155).astype(np.int8)
             cv2.imshow('bev_map', img[::-1, ::-1])
             cv2.waitKey(1)
-
+        if vis_utils is None:
+            # load open3d on remote clusters like slurm or dcos might pose error
+            return
         vis_utils.visualize_single_sample_output_gt(pred_box_tensor,
                                                     gt_tensor,
                                                     pcd,
