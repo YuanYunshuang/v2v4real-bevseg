@@ -1,7 +1,7 @@
 name: corpbevtlidar
-root_dir: '/koko/v2vreal/train'
-validate_dir: '/koko/v2vreal/test'
-log_dir: '/koko/v2vreal-out'
+root_dir: '/bigwork/nhgmyyua/v2vreal/train'
+validate_dir: '/bigwork/nhgmyyua/v2vreal/test'
+log_dir: '/bigwork/nhgmyyua/v2vreal/v2vreal-out'
 
 wild_setting:
   async: false
