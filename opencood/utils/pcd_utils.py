@@ -1,9 +1,11 @@
 """
 Utility functions related to point cloud
 """
-
-import open3d as o3d
 import numpy as np
+try:
+    import open3d as o3d
+except:
+    o3d = None
 
 
 def pcd_to_np(pcd_file):
@@ -23,7 +25,7 @@ def pcd_to_np(pcd_file):
         The lidar data in numpy format, shape:(n, 4)
 
     """
-    if int(o3d.__version__.split('.')[1]) > 10:
+    if o3d is not None and int(o3d.__version__.split('.')[1]) > 10:
         pcd = o3d.io.read_point_cloud(pcd_file)
         xyz = np.asarray(pcd.points)
         # we save the intensity in the first channel
