@@ -5,8 +5,8 @@ validate_dir: '/koko/v2vreal/test'
 log_dir: '/koko/v2vreal-out'
 
 wild_setting:
-  async: false
   async_overhead: 100
+  async: false
   seed: 20
   loc_err: false
   xyz_std: 0.2
@@ -14,6 +14,7 @@ wild_setting:
   data_size: 1.06 # Mb!!
   transmission_speed: 27 # Mbps!!
   backbone_delay: 10 # ms
+
 
 yaml_parser: "load_point_pillar_params"
 train_params:
