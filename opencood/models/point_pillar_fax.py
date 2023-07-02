@@ -39,9 +39,9 @@ class PointPillarFax(nn.Module):
 
         self.fusion_net = SwapFusionEncoder(args['fax_fusion'])
 
-        self.cls_head = nn.Conv2d(128, args['anchor_number'],
+        self.cls_head = nn.Conv2d(128 * 2, args['anchor_number'],
                                   kernel_size=1)
-        self.reg_head = nn.Conv2d(128, 7 * args['anchor_number'],
+        self.reg_head = nn.Conv2d(128 * 2, 7 * args['anchor_number'],
                                   kernel_size=1)
 
         if args['backbone_fix']:
