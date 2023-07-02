@@ -19,7 +19,7 @@ wild_setting:
 
 yaml_parser: "load_point_pillar_params"
 train_params:
-  batch_size: &batch_size 4
+  batch_size: &batch_size 2
   epoches: &epoches 60
   eval_freq: 2
   save_freq: 1
