@@ -3,6 +3,7 @@ root_dir: '/koko/OPV2V/additional/train'
 validate_dir: '/koko/OPV2V/additional/test'
 log_dir: '/koko/v2vreal-out'
 load_camera: false
+com_range: 45
 
 wild_setting:
   async: false
@@ -14,6 +15,7 @@ wild_setting:
   data_size: 1.06 # Mb!!
   transmission_speed: 27 # Mbps!!
   backbone_delay: 10 # ms
+  com_range: 45
 
 yaml_parser: "load_point_pillar_params"
 train_params:

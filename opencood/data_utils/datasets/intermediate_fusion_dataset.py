@@ -119,7 +119,7 @@ class IntermediateFusionDataset(basedataset.BaseDataset):
             distance = dist_two_pose(selected_cav_base['params']['lidar_pose'],
                                      ego_lidar_pose)
 
-            if distance > opencood.data_utils.datasets.COM_RANGE:
+            if distance > self.com_range:
                 continue
 
             # augment related

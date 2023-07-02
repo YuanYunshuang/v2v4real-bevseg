@@ -49,6 +49,7 @@ class BaseDataset(Dataset):
         self.train = train
         self.isSim = isSim
         self.load_cam = params.get('load_camera', False)
+        self.com_range = params.get('com_range', 70)
 
         self.pre_processor = None
         self.post_processor = None
