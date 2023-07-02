@@ -22,7 +22,7 @@ class VanillaSegLoss(nn.Module):
             self.s_coe = args['s_coe']
             self.loss_func_static = \
                 nn.CrossEntropyLoss(
-                    weight=torch.Tensor([1., self.s_weights, self.l_weights]).cuda())
+                    weight=torch.Tensor([1., self.s_weights]).cuda())
 
         self.loss_dict = {}
 
