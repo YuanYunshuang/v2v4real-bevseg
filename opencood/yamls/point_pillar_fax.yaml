@@ -37,7 +37,7 @@ preprocess:
     max_voxel_train: 32000
     max_voxel_test: 70000
   # lidar range for each individual cav.
-  cav_lidar_range: &cav_lidar [-50, -50, -3, 50, 50, 3]
+  cav_lidar_range: &cav_lidar [-51.2, -51.2, -3, 51.2, 51.2, 3]
   bev_map_resolution: 0.4
 
 data_augment:

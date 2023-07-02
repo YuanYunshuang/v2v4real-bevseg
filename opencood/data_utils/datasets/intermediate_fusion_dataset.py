@@ -226,8 +226,16 @@ class IntermediateFusionDataset(basedataset.BaseDataset):
             # img[..., 1] = bev_map.astype(np.int8) * 255
             # cv2.imwrite(filename, img)
         else:
-            s = round(self.params['preprocess']['bev_map_resolution'] // 0.2)
+            lidar_range = self.params['preprocess']['cav_lidar_range']
+            resolution = self.params['preprocess']['bev_map_resolution']
+            height = round((lidar_range[3] - lidar_range[0]) / resolution)
+            width = round((lidar_range[4] - lidar_range[1]) / resolution)
+            s = round(resolution // 0.2)
             bev_map = bev_map[::-s, ::s].transpose(1, 0, 2)
+            ph = (height - bev_map.shape[0]) // 2
+            pw = (width - bev_map.shape[1]) // 2
+            bev_map = np.pad(bev_map, ((ph, ph), (pw, pw), (0, 0)),
+                             constant_values=0)
             # flip along x
             if flip[0]:
                 bev_map = bev_map[::-1, :]
