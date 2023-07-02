@@ -67,7 +67,7 @@ class VanillaSegLoss(nn.Module):
         if self.target == 'static' or self.target != 'dynamic':
             static_pred = output_dict['static_seg']
             # during training, we only need to compute the ego vehicle's gt loss
-            static_gt = gt_dict['gt_static']
+            static_gt = gt_dict['gt_static'].long()
             # static_gt = rearrange(static_gt, 'b l h w -> (b l) h w')
             static_pred = rearrange(static_pred, 'b l c h w -> (b l) c h w')
             static_loss = self.loss_func_static(static_pred, static_gt)
