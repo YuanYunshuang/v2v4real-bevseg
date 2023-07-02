@@ -28,6 +28,8 @@ def train_parser():
                         help='data generation yaml file needed ')
     parser.add_argument('--model_dir', default='',
                         help='Continued training path')
+    parser.add_argument("--isSim", action='store_true',
+                        help="set True if use OPV2V, set False if use v2vreal.")
     parser.add_argument("--half", action='store_true',
                         help="whether train with half precision.")
     parser.add_argument('--dist_url', default='env://',
@@ -43,8 +45,8 @@ def main():
     multi_gpu_utils.init_distributed_mode(opt)
 
     print('-----------------Dataset Building------------------')
-    opencood_train_dataset = build_dataset(hypes, visualize=False, train=True)
-    opencood_validate_dataset = build_dataset(hypes, visualize=False, train=False)
+    opencood_train_dataset = build_dataset(hypes, visualize=False, train=True, isSim=opt.isSim)
+    opencood_validate_dataset = build_dataset(hypes, visualize=False, train=False, isSim=opt.isSim)
 
     if opt.distributed:
         sampler_train = DistributedSampler(opencood_train_dataset)
