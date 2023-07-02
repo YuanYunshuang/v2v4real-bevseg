@@ -25,14 +25,20 @@ def pcd_to_np(pcd_file):
         The lidar data in numpy format, shape:(n, 4)
 
     """
-    if o3d is not None and int(o3d.__version__.split('.')[1]) > 10:
-        pcd = o3d.io.read_point_cloud(pcd_file)
-        xyz = np.asarray(pcd.points)
-        # we save the intensity in the first channel
-        intensity = np.expand_dims(np.asarray(pcd.colors)[:, 0], -1)
-        pcd_np = np.hstack((xyz, intensity))
-    else:
-        pcd_np = np.loadtxt(pcd_file, skiprows=11).reshape(-1, 4)
+    if pcd_file[-3:] == 'bin':
+        pcd_np = np.fromfile(pcd_file, dtype="float32").reshape(-1, 4)
+        # in opv2v additional dataset, last column is cls labels,
+        # they are not needd in this frame work, set to 0
+        pcd_np[:, -1] = 0
+    else:  # extension .pcd
+        if o3d is not None and int(o3d.__version__.split('.')[1]) > 10:
+            pcd = o3d.io.read_point_cloud(pcd_file)
+            xyz = np.asarray(pcd.points)
+            # we save the intensity in the first channel
+            intensity = np.expand_dims(np.asarray(pcd.colors)[:, 0], -1)
+            pcd_np = np.hstack((xyz, intensity))
+        else:
+            pcd_np = np.loadtxt(pcd_file, skiprows=11).reshape(-1, 4)
 
     return np.asarray(pcd_np, dtype=np.float32)
 

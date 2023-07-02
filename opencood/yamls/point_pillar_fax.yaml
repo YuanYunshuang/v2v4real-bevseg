@@ -1,7 +1,8 @@
-name: corpbevtlidar-v2vreal
-root_dir: '/koko/v2vreal/train'
-validate_dir: '/koko/v2vreal/test'
-log_dir: '/koko/v2vreal/v2vreal-out'
+name: corpbevtlidar-opv2v
+root_dir: '/koko/OPV2V/additional/train'
+validate_dir: '/koko/OPV2V/additional/test'
+log_dir: '/koko/v2vreal-out'
+load_camera: false
 
 wild_setting:
   async: false
@@ -20,7 +21,7 @@ train_params:
   epoches: &epoches 60
   eval_freq: 2
   save_freq: 1
-  max_cav: &max_cav 2
+  max_cav: &max_cav 7
 
 fusion:
   core_method: 'IntermediateFusionDataset' # LateFusionDataset, EarlyFusionDataset, IntermediateFusionDataset supported
@@ -36,7 +37,7 @@ preprocess:
     max_voxel_train: 32000
     max_voxel_test: 70000
   # lidar range for each individual cav.
-  cav_lidar_range: &cav_lidar [-102.4, -38.4, -5, 102.4, 38.4, 3]
+  cav_lidar_range: &cav_lidar [-50, -50, -3, 50, 50, 3]
   bev_map_resolution: 0.4
 
 data_augment:
@@ -78,7 +79,7 @@ model:
     max_cav: *max_cav
     compression: 0 # compression rate
     backbone_fix: false
-    target: &target 'dynamic'
+    target: &target 'all'
 
     pillar_vfe:
       use_norm: true
@@ -127,6 +128,8 @@ loss:
       target: *target
       d_weights: 75.0
       d_coe: 2.0
+      s_weights: 1.0
+      s_coe: 1.0
     point_pillar_loss:
       cls_weight: 1.0
       reg: 2.0

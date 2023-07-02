@@ -23,14 +23,15 @@ def vis_parser():
 if __name__ == '__main__':
     current_path = os.path.dirname(os.path.realpath(__file__))
     opt = vis_parser()
+    opt.isSim = True
     # params = load_yaml(os.path.join(current_path,
     #                                 '../hypes_yaml/visualization.yaml'))
     params = load_yaml(os.path.join(current_path,
-                                    '../hypes_yaml/point_pillar_fax.yaml'))
+                                    '../yamls/point_pillar_fax.yaml'))
 
     opencda_dataset = IntermediateFusionDataset(params, visualize=True,
-                                            train=False, isSim=opt.isSim)
-    data_loader = DataLoader(opencda_dataset, batch_size=1, num_workers=8,
+                                            train=True, isSim=opt.isSim)
+    data_loader = DataLoader(opencda_dataset, batch_size=1, num_workers=1,
                              collate_fn=opencda_dataset.collate_batch_train,
                              shuffle=False,
                              pin_memory=False)

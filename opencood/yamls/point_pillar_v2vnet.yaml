@@ -1,15 +1,16 @@
-name: corpbevtlidar-v2vreal
+name: point_pillar_v2vnet
 root_dir: '/koko/v2vreal/train'
 validate_dir: '/koko/v2vreal/test'
-log_dir: '/koko/v2vreal/v2vreal-out'
+log_dir: '/koko/v2vreal-out'
 
 wild_setting:
   async: false
+  async_mode: 'real'
   async_overhead: 100
   seed: 20
   loc_err: false
-  xyz_std: 1.0
-  ryp_std: 1.0
+  xyz_std: 0.2
+  ryp_std: 0.2
   data_size: 1.06 # Mb!!
   transmission_speed: 27 # Mbps!!
   backbone_delay: 10 # ms
@@ -18,12 +19,12 @@ yaml_parser: "load_point_pillar_params"
 train_params:
   batch_size: &batch_size 4
   epoches: &epoches 60
-  eval_freq: 2
+  eval_freq: 1
   save_freq: 1
   max_cav: &max_cav 2
 
 fusion:
-  core_method: 'IntermediateFusionDataset' # LateFusionDataset, EarlyFusionDataset, IntermediateFusionDataset supported
+  core_method: 'IntermediateFusionDataset' # LateFusionDataset, EarlyFusionDataset, IntermediateFusionDataset, FeatureFusionDataset supported
   args: []
 
 # preprocess-related
@@ -70,7 +71,7 @@ postprocess:
 
 # model related
 model:
-  core_method: point_pillar_fax
+  core_method: point_pillar_v2vnet
   args:
     voxel_size: *voxel_size
     lidar_range: *cav_lidar
@@ -101,16 +102,19 @@ model:
       dim: [256]
       input_dim: 384 # 128 * 3
 
-    fax_fusion:
-      input_dim: 256
-      mlp_dim: 256
-      agent_size: *max_cav
-      window_size: 4
-      dim_head: 32
-      drop_out: 0.1
-      depth: 3
-      mask: true
-
+    v2vfusion:
+      use_temporal_encoding: true
+      voxel_size: *voxel_size
+      downsample_rate: 4
+      num_iteration: 1
+      in_channels: 256
+      gru_flag: true
+      agg_operator: "avg" # max or avg
+      conv_gru:
+        H: 48
+        W: 128
+        num_layers: 1
+        kernel_size: [[3,3]]
 
     decoder:
       input_dim: 256
@@ -133,7 +137,7 @@ loss:
 
 optimizer:
   core_method: Adam
-  lr: 0.001
+  lr: 0.002
   args:
     eps: 1e-10
     weight_decay: 1e-4

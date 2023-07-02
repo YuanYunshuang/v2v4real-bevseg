@@ -7,6 +7,7 @@ import random
 from collections import OrderedDict
 
 import torch
+import cv2
 import numpy as np
 from torch.utils.data import Dataset
 from scipy.spatial.transform.rotation import Rotation as R
@@ -47,6 +48,7 @@ class BaseDataset(Dataset):
         self.visualize = visualize
         self.train = train
         self.isSim = isSim
+        self.load_cam = params.get('load_camera', False)
 
         self.pre_processor = None
         self.post_processor = None
@@ -89,6 +91,13 @@ class BaseDataset(Dataset):
             root_dir = params['root_dir']
         else:
             root_dir = params['validate_dir']
+        self.root_dir = root_dir
+        name = params['name'].split('-')[-1]
+        if name in ['v2vreal', 'opv2v']:
+            self.data_name = name
+        else:
+            raise IOError("Name not recognized. Valid name: "
+                          "[experiment name]-[dataset name] in lower case.")
 
         if 'max_cav' not in params['train_params']:
             self.max_cav = 7
@@ -163,16 +172,28 @@ class BaseDataset(Dataset):
 
                     yaml_file = os.path.join(cav_path,
                                              timestamp + '.yaml')
-                    lidar_file = os.path.join(cav_path,
-                                              timestamp + '.pcd')
-                    camera_files = self.load_camera_files(cav_path, timestamp)
+                    if self.data_name == 'v2vreal':
+                        lidar_file = os.path.join(cav_path,
+                                                  timestamp + '.pcd')
+                        bev_file = os.path.join(cav_path,
+                                                timestamp + '_bev_map.png')
+                    elif self.data_name == 'opv2v':
+                        lidar_file = os.path.join(cav_path,
+                                                  timestamp + '_semantic_lidarcenter.bin')
+                        bev_file = os.path.join(cav_path,
+                                                timestamp + '_bev_road.png')
+                    else:
+                        raise NotImplementedError
 
                     self.scenario_database[i][cav_id][timestamp]['yaml'] = \
                         yaml_file
                     self.scenario_database[i][cav_id][timestamp]['lidar'] = \
                         lidar_file
-                    self.scenario_database[i][cav_id][timestamp]['camera0'] = \
-                        camera_files
+                    self.scenario_database[i][cav_id][timestamp]['bev'] = \
+                        bev_file
+                    if self.load_cam:
+                        self.scenario_database[i][cav_id][timestamp]['camera0'] = \
+                            self.load_camera_files(cav_path, timestamp)
                 # Assume all cavs will have the same timestamps length. Thus
                 # we only need to calculate for the first vehicle in the
                 # scene.
@@ -250,6 +271,10 @@ class BaseDataset(Dataset):
                                                        cur_ego_pose_flag)
             data[cav_id]['lidar_np'] = \
                 pcd_utils.pcd_to_np(cav_content[timestamp_key_delay]['lidar'])
+            if os.path.exists(cav_content[timestamp_key_delay]['bev']):
+                bev_map = cv2.imread(cav_content[timestamp_key_delay]['bev'])
+                data[cav_id]['bev_map'] = \
+                    bev_map.astype(float) / 255
             data[cav_id]['folder_name'] = \
                 cav_content[timestamp_key_delay]['lidar'].split('/')[-3]
             data[cav_id]['index'] = timestamp_index

@@ -1,6 +1,7 @@
 """
 Dataset class for early fusion
 """
+import os.path
 import random
 import math
 from collections import OrderedDict
@@ -107,6 +108,7 @@ class IntermediateFusionDataset(basedataset.BaseDataset):
         time_delay = []
         infra = []
         spatial_correction_matrix = []
+        bev_map = None
 
         if self.visualize:
             projected_lidar_stack = []
@@ -132,6 +134,8 @@ class IntermediateFusionDataset(basedataset.BaseDataset):
             if void_lidar:
                 continue
 
+            if cav_id == ego_id:
+                bev_map = selected_cav_base.get('bev_map', None)
 
             object_stack.append(selected_cav_processed['object_bbx_center'])
             object_id_stack += selected_cav_processed['object_ids']
@@ -208,8 +212,52 @@ class IntermediateFusionDataset(basedataset.BaseDataset):
             processed_data_dict['ego'].update({'origin_lidar':
                 np.vstack(
                     projected_lidar_stack)})
+        if bev_map is None:
+            bev_map = self.get_dynamic_bev_map(processed_data_dict)
+            processed_data_dict['ego']['label_dict']['gt_dynamic'] = bev_map
+            processed_data_dict['ego']['label_dict']['gt_static'] = None
+            # filename = os.path.join(
+            #     self.root_dir,
+            #     selected_cav_base['frame_id'][0],
+            #     ego_id,
+            #     selected_cav_base['frame_id'][1].split('_')[0] + '_bev_map.png',
+            # )
+            # img = np.zeros(bev_map.shape + (3,), dtype=np.int8)
+            # img[..., 1] = bev_map.astype(np.int8) * 255
+            # cv2.imwrite(filename, img)
+        else:
+            s = round(self.params['preprocess']['bev_map_resolution'] // 0.2)
+            bev_map = bev_map[::-s, ::s].transpose(1, 0, 2)
+            # flip along x
+            if flip[0]:
+                bev_map = bev_map[::-1, :]
+            # rotate
+            height, width = bev_map.shape[:2]
+            center = (width // 2, height // 2)
+            rotation_matrix = cv2.getRotationMatrix2D(center, -np.rad2deg(noise_rotation), 1.0)
+            bev_map = cv2.warpAffine(bev_map, rotation_matrix, (width, height))
 
-        self.get_dynamic_bev_map(processed_data_dict)
+            # scale
+            bev_map_resized = cv2.resize(bev_map, None, fx=noise_scale, fy=noise_scale)
+            h, w = bev_map_resized.shape[:2]
+            padh = abs(h - height) // 2
+            padw = abs(w - width) // 2
+            if h > height:
+                bev_map_new = bev_map_resized[padh:padh+height, padw:padw+width]
+            else:
+                bev_map_new = np.zeros_like(bev_map)
+                bev_map_new[padh:padh+h, padw:padw+w] = bev_map_resized
+            processed_data_dict['ego']['label_dict']['gt_dynamic'] = bev_map_new[..., 1]
+            processed_data_dict['ego']['label_dict']['gt_static'] = bev_map_new[..., 2]
+
+        # import matplotlib.pyplot as plt
+        # pts = np.concatenate(
+        #     processed_data_dict['ego']['processed_lidar']['voxel_coords'] , axis=0)
+        # bev_map[pts[:, 1], pts[:, 2]] = 1
+        # plt.imshow(bev_map)
+        # plt.show()
+        # plt.close()
+        # pass
 
         return processed_data_dict
 
@@ -273,9 +321,12 @@ class IntermediateFusionDataset(basedataset.BaseDataset):
         processed_lidar = self.pre_processor.preprocess(lidar_np)
 
         # velocity
-        velocity = selected_cav_base['params']['ego_speed']
-        # normalize veloccity by average speed 30 km/h
-        velocity = velocity / 30
+        if 'ego_speed' in selected_cav_base['params']:
+            velocity = selected_cav_base['params']['ego_speed']
+            # normalize veloccity by average speed 30 km/h
+            velocity = velocity / 30
+        else:
+            velocity = 0.0
 
         selected_cav_processed.update(
             {'object_bbx_center': object_bbx_center_valid,
@@ -479,7 +530,7 @@ class IntermediateFusionDataset(basedataset.BaseDataset):
         bbx_mask = processed_data_dict['ego']['object_bbx_mask']
         bbxs = boxes_to_corners2d(bbx_center[bbx_mask.astype(bool)], 'hwl')
         lidar_range = self.params['preprocess']['cav_lidar_range']
-        resolution = self.params['preprocess']['bev_map_resolution']
+        resolution = 0.2
 
         w = round((lidar_range[3] - lidar_range[0]) / resolution)
         h = round((lidar_range[4] - lidar_range[1]) / resolution)
@@ -493,17 +544,7 @@ class IntermediateFusionDataset(basedataset.BaseDataset):
             cv2.fillPoly(buf, [box[:, :2].round().astype(np.int32)], 1, cv2.INTER_LINEAR)
             bev_map[buf > 0] = 1
 
-        processed_data_dict['ego']['label_dict']['gt_dynamic'] = bev_map
-        processed_data_dict['ego']['label_dict']['gt_static'] = None
-
-        # import matplotlib.pyplot as plt
-        # pts = np.concatenate(
-        #     processed_data_dict['ego']['processed_lidar']['voxel_coords'] , axis=0)
-        # bev_map[pts[:, 1], pts[:, 2]] = 100
-        # plt.imshow(bev_map)
-        # plt.show()
-        # plt.close()
-        # pass
+        return bev_map
 
 
 if __name__ == '__main__':
