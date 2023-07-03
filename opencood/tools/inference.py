@@ -299,7 +299,7 @@ def main(exp=None):
 
     hypes = yaml_utils.load_yaml(None, opt)
 
-    if exp is not None:
+    if exp is not None and exp.sum() > 0:
         print('exp: ', exp)
         hypes['wild_setting']['loc_err'] = True
         hypes['wild_setting']['xyz_err'] = exp[0]
