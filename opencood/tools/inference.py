@@ -300,14 +300,14 @@ def main(exp=None):
     hypes = yaml_utils.load_yaml(None, opt)
 
     if exp is not None:
-        assert len(exp) == 2
+        print('exp: ', exp)
         hypes['wild_setting']['loc_err'] = True
         hypes['wild_setting']['xyz_err'] = exp[0]
         hypes['wild_setting']['rpy_err'] = exp[1]
         exp = f"{exp[0] * 10:.0f}-{exp[1] * 10:.0f}"
     else:
         exp = ''
-    main(exp)
+    inference(opt, hypes, exp)
 
 
 if __name__ == '__main__':
