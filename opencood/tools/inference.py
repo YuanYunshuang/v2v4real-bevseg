@@ -40,17 +40,10 @@ def test_parser():
     return opt
 
 
-def main():
-    opt = test_parser()
-    assert opt.fusion_method in ['late', 'early', 'intermediate', 'nofusion']
-    assert not (opt.show_vis and opt.show_sequence), \
-        'you can only visualize ' \
-        'the results in single ' \
-        'image mode or video mode'
-    test_dir = os.path.join(opt.model_dir, 'test')
-    os.makedirs(test_dir, exist_ok=True)
+def inference(opt, hypes, exp=""):
 
-    hypes = yaml_utils.load_yaml(None, opt)
+    test_dir = os.path.join(opt.model_dir, f'test{exp}')
+    os.makedirs(test_dir, exist_ok=True)
 
     print('Dataset Building')
     opencood_dataset = build_dataset(hypes, visualize=True, train=False,
@@ -292,6 +285,29 @@ def main():
                                       "long")
     if opt.show_sequence:
         vis.destroy_window()
+
+
+def main(exp=None):
+    opt = test_parser()
+    assert opt.fusion_method in ['late', 'early', 'intermediate', 'nofusion']
+    assert not (opt.show_vis and opt.show_sequence), \
+        'you can only visualize ' \
+        'the results in single ' \
+        'image mode or video mode'
+    test_dir = os.path.join(opt.model_dir, 'test')
+    os.makedirs(test_dir, exist_ok=True)
+
+    hypes = yaml_utils.load_yaml(None, opt)
+
+    if exp is not None:
+        assert len(exp) == 2
+        hypes['wild_setting']['loc_err'] = True
+        hypes['wild_setting']['xyz_err'] = exp[0]
+        hypes['wild_setting']['rpy_err'] = exp[1]
+        exp = f"{exp[0] * 10:.0f}-{exp[1] * 10:.0f}"
+    else:
+        exp = ''
+    main(exp)
 
 
 if __name__ == '__main__':
