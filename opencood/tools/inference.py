@@ -313,7 +313,7 @@ def main(exp=None):
             exp = f"{exp[0] * 10:.0f}-{exp[1] * 10:.0f}"
         else:
             exp = ''
-    inference(opt, hypes, exp)
+        inference(opt, hypes, exp)
 
 
 if __name__ == '__main__':
