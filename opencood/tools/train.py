@@ -190,24 +190,24 @@ def main():
             torch.save(model_without_ddp.state_dict(),
                 os.path.join(saved_path, 'net_epoch%d.pth' % (epoch + 1)))
 
-        if epoch % hypes['train_params']['eval_freq'] == 0:
-            valid_ave_loss = []
-
-            with torch.no_grad():
-                for i, batch_data in enumerate(val_loader):
-                    model.eval()
-
-                    batch_data = train_utils.to_device(batch_data, device)
-                    ouput_dict = model(batch_data['ego'])
-
-                    final_loss = criterion(ouput_dict,
-                                           batch_data['ego']['label_dict'])
-                    valid_ave_loss.append(final_loss.item())
-            valid_ave_loss = statistics.mean(valid_ave_loss)
-            print('At epoch %d, the validation loss is %f' % (epoch,
-                                                              valid_ave_loss))
-            if SummaryWriter is not None:
-                writer.add_scalar('Validate_Loss', valid_ave_loss, epoch)
+        # if epoch % hypes['train_params']['eval_freq'] == 0:
+        #     valid_ave_loss = []
+        #
+        #     with torch.no_grad():
+        #         for i, batch_data in enumerate(val_loader):
+        #             model.eval()
+        #
+        #             batch_data = train_utils.to_device(batch_data, device)
+        #             ouput_dict = model(batch_data['ego'])
+        #
+        #             final_loss = criterion(ouput_dict,
+        #                                    batch_data['ego']['label_dict'])
+        #             valid_ave_loss.append(final_loss.item())
+        #     valid_ave_loss = statistics.mean(valid_ave_loss)
+        #     print('At epoch %d, the validation loss is %f' % (epoch,
+        #                                                       valid_ave_loss))
+        #     if SummaryWriter is not None:
+        #         writer.add_scalar('Validate_Loss', valid_ave_loss, epoch)
 
     print('Training Finished, checkpoints saved to %s' % saved_path)
 
