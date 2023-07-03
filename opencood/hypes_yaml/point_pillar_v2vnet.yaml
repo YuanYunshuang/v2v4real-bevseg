@@ -1,4 +1,4 @@
-name: point_pillar_v2vnet
+name: v2vnet-v2vreal
 root_dir: '/koko/v2vreal/train'
 validate_dir: '/koko/v2vreal/test'
 log_dir: '/koko/v2vreal-out'
