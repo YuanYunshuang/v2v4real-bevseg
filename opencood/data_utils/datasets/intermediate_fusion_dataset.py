@@ -538,7 +538,7 @@ class IntermediateFusionDataset(basedataset.BaseDataset):
         bbx_mask = processed_data_dict['ego']['object_bbx_mask']
         bbxs = boxes_to_corners2d(bbx_center[bbx_mask.astype(bool)], 'hwl')
         lidar_range = self.params['preprocess']['cav_lidar_range']
-        resolution = 0.2
+        resolution = self.params['preprocess']['bev_map_resolution']
 
         w = round((lidar_range[3] - lidar_range[0]) / resolution)
         h = round((lidar_range[4] - lidar_range[1]) / resolution)
