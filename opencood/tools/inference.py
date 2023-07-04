@@ -120,8 +120,8 @@ def inference(opt, hypes, exp=""):
             if len(res) == 3:
                 pred_box_tensor, pred_score, gt_box_tensor = res
                 pred_bev = None
-            elif len(res) == 4:
-                pred_box_tensor, pred_score, pred_bev, gt_box_tensor = res
+            elif len(res) == 5:
+                pred_box_tensor, pred_score, pred_dynamic_bev, pred_static_bev, gt_box_tensor = res
 
             if opt.save_evibev:
                 padding = ((0, 0), (1, 0))
@@ -129,7 +129,11 @@ def inference(opt, hypes, exp=""):
                 pred_boxes = np.pad(pred_boxes, padding, mode='constant', constant_values=0)
                 gt_boxes = box_utils.corner_to_center(gt_box_tensor.detach().cpu().numpy())
                 gt_boxes = np.pad(gt_boxes, padding, mode='constant', constant_values=0)
-                evidence = torch.stack([bev.permute(2, 1, 0) for bev in pred_bev], dim=0)
+                evidence_dynamic = torch.stack([bev.permute(2, 1, 0) for bev in pred_dynamic_bev], dim=0)
+                if len(pred_static_bev) > 0:
+                    evidence_static= torch.stack([bev.permute(2, 1, 0) for bev in pred_static_bev], dim=0)
+                else:
+                    evidence_static = None
                 device = pred_box_tensor.device
                 cur_dict = {
                     'frame_id': batch_data['ego']['frame_id'],
@@ -139,7 +143,13 @@ def inference(opt, hypes, exp=""):
                     },
                     'target_boxes': torch.from_numpy(gt_boxes).to(device),
                     'distr_object': {
-                        'evidence': evidence,
+                        'evidence': evidence_dynamic,
+                        'obs_mask': None,
+                        'Nall': None,
+                        'Nsel': None
+                    },
+                    'distr_surface': {
+                        'evidence': evidence_static,
                         'obs_mask': None,
                         'Nall': None,
                         'Nsel': None

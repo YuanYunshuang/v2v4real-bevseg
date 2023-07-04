@@ -45,8 +45,8 @@ def main():
     multi_gpu_utils.init_distributed_mode(opt)
 
     print('-----------------Dataset Building------------------')
-    opencood_train_dataset = build_dataset(hypes, visualize=False, train=True, isSim=opt.isSim)
-    opencood_validate_dataset = build_dataset(hypes, visualize=False, train=False, isSim=opt.isSim)
+    opencood_train_dataset = build_dataset(hypes, visualize=False, train=True)
+    opencood_validate_dataset = build_dataset(hypes, visualize=False, train=False)
 
     if opt.distributed:
         sampler_train = DistributedSampler(opencood_train_dataset)

@@ -326,35 +326,38 @@ class VoxelPostprocessor(BasePostprocessor):
                 pred_box3d_list.append(projected_boxes3d)
 
         if len(pred_box2d_list) ==0 or len(pred_box3d_list) == 0:
-            return None, None
-        # shape: (N, 5)
-        pred_box2d_list = torch.cat(pred_box2d_list, dim=0)
-        # scores
-        scores = pred_box2d_list[:, -1]
-        # predicted 3d bbx
-        pred_box3d_tensor = torch.cat(pred_box3d_list, dim=0)
+            pred_box3d_tensor = None
+            scores = None
+        else:
+            # shape: (N, 5)
+            pred_box2d_list = torch.cat(pred_box2d_list, dim=0)
+            # scores
+            scores = pred_box2d_list[:, -1]
+            # predicted 3d bbx
+            pred_box3d_tensor = torch.cat(pred_box3d_list, dim=0)
 
-        # nms
-        keep_index = box_utils.nms_rotated(pred_box3d_tensor,
-                                           scores,
-                                           self.params['nms_thresh']
-                                           )
+            # nms
+            keep_index = box_utils.nms_rotated(pred_box3d_tensor,
+                                               scores,
+                                               self.params['nms_thresh']
+                                               )
 
-        pred_box3d_tensor = pred_box3d_tensor[keep_index]
+            pred_box3d_tensor = pred_box3d_tensor[keep_index]
 
-        # select cooresponding score
-        scores = scores[keep_index]
+            # select cooresponding score
+            scores = scores[keep_index]
 
-        # filter out the prediction out of the range.
-        mask = \
-            box_utils.get_mask_for_boxes_within_range_torch(pred_box3d_tensor)
-        pred_box3d_tensor = pred_box3d_tensor[mask, :, :]
-        scores = scores[mask]
+            # filter out the prediction out of the range.
+            mask = \
+                box_utils.get_mask_for_boxes_within_range_torch(pred_box3d_tensor)
+            pred_box3d_tensor = pred_box3d_tensor[mask, :, :]
+            scores = scores[mask]
 
-        assert scores.shape[0] == pred_box3d_tensor.shape[0]
+            assert scores.shape[0] == pred_box3d_tensor.shape[0]
 
         # get bev map
-        pred_bev_list = []
+        pred_dbev_list = []
+        pred_sbev_list = []
 
         for cav_id, cav_content in data_dict.items():
             if cav_id not in output_dict:
@@ -363,9 +366,14 @@ class VoxelPostprocessor(BasePostprocessor):
                 seg = output_dict[cav_id]['dynamic_seg'].softmax(dim=2) # b l c h w
                 assert seg.shape[0] == 1
                 seg = seg[0, 0]  # c h w
-                pred_bev_list.append(seg)
+                pred_dbev_list.append(seg)
+            if 'static_seg' in output_dict[cav_id]:
+                seg = output_dict[cav_id]['static_seg'].softmax(dim=2) # b l c h w
+                assert seg.shape[0] == 1
+                seg = seg[0, 0]  # c h w
+                pred_sbev_list.append(seg)
 
-        return pred_box3d_tensor, scores, pred_bev_list
+        return pred_box3d_tensor, scores, pred_dbev_list, pred_sbev_list
 
     @staticmethod
     def delta_to_boxes3d(deltas, anchors):

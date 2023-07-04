@@ -27,7 +27,7 @@ if __name__ == '__main__':
     # params = load_yaml(os.path.join(current_path,
     #                                 '../hypes_yaml/visualization.yaml'))
     params = load_yaml(os.path.join(current_path,
-                                    '../yamls/point_pillar_fax.yaml'))
+                                    '../yamls/point_pillar_fcooper.yaml'))
 
     opencda_dataset = IntermediateFusionDataset(params, visualize=True,
                                             train=True, isSim=opt.isSim)
