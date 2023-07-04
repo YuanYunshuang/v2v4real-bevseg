@@ -256,13 +256,13 @@ class IntermediateFusionDataset(basedataset.BaseDataset):
                 bev_map_new = np.zeros_like(bev_map)
                 bev_map_new[padh:padh+h, padw:padw+w] = bev_map_resized
             processed_data_dict['ego']['label_dict']['gt_dynamic'] = bev_map_new[..., 1]
-            processed_data_dict['ego']['label_dict']['gt_static'] = bev_map_new[..., 2]
+            processed_data_dict['ego']['label_dict']['gt_static'] = bev_map_new[..., 0]
 
         # import matplotlib.pyplot as plt
         # pts = np.concatenate(
         #     processed_data_dict['ego']['processed_lidar']['voxel_coords'] , axis=0)
-        # bev_map[pts[:, 1], pts[:, 2]] = 1
-        # plt.imshow(bev_map)
+        # bev_map_new[pts[:, 1], pts[:, 2], 2] = 1
+        # plt.imshow(bev_map_new)
         # plt.show()
         # plt.close()
         # pass
