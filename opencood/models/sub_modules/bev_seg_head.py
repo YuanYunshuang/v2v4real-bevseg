@@ -37,16 +37,13 @@ class BevSegHead(nn.Module):
             dynamic_map = self.dynamic_head(x)
             dynamic_map = rearrange(dynamic_map, '(b l) c h w -> b l c h w',
                                     b=b, l=l)
-            static_map = torch.zeros_like(dynamic_map,
-                                          device=dynamic_map.device)
+            static_map = None
 
         elif self.target == 'static':
             static_map = self.static_head(x)
             static_map = rearrange(static_map, '(b l) c h w -> b l c h w',
                                    b=b, l=l)
-            dynamic_map = torch.zeros_like(static_map,
-                                           device=static_map.device)
-
+            dynamic_map = None
         else:
             dynamic_map = self.dynamic_head(x)
             dynamic_map = rearrange(dynamic_map, '(b l) c h w -> b l c h w',

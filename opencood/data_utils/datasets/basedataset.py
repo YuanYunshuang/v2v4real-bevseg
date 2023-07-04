@@ -412,18 +412,18 @@ class BaseDataset(Dataset):
             np.random.seed(self.seed)
         xyz_noise = np.random.normal(0, xyz_std, 3)
         # xyz_noise[2] = 0
-        ryp_std = np.random.normal(0, ryp_std, 3)
-        ryp_std[:2] = 0
+        ryp_noise = np.random.normal(0, ryp_std, 3)
+        ryp_noise[:2] = 0
         if isinstance(pose, list):
             noise_pose = [pose[0] + xyz_noise[0],
                           pose[1] + xyz_noise[1],
                           pose[2] + xyz_noise[2],
                           pose[3],
-                          pose[4] + ryp_std[1],
+                          pose[4] + ryp_noise[2],
                           pose[5]]
         elif isinstance(pose, np.ndarray):
             noise_pose = np.eye(4)
-            rot_mat = R.from_euler('xyz', ryp_std, degrees=True).as_matrix()
+            rot_mat = R.from_euler('xyz', ryp_noise, degrees=True).as_matrix()
             noise_pose[:3, :3] = rot_mat @ pose[:3, :3]
             noise_pose[:3, 3] = pose[:3, 3] + xyz_noise
         else:
@@ -497,6 +497,7 @@ class BaseDataset(Dataset):
         # we always use current timestamp's gt bbx to gain a fair evaluation
         delay_params['vehicles'] = cur_params['vehicles']
         delay_params['transformation_matrix'] = transformation_matrix
+        delay_params['has_loc_noise'] = self.loc_err_flag
         delay_params['gt_transformation_matrix'] = \
             gt_transformation_matrix
         delay_params['spatial_correction_matrix'] = spatial_correction_matrix

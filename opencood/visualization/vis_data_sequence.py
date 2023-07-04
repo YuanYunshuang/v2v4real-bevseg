@@ -23,14 +23,17 @@ def vis_parser():
 if __name__ == '__main__':
     current_path = os.path.dirname(os.path.realpath(__file__))
     opt = vis_parser()
-    opt.isSim = True
+    opt.isSim = False
     # params = load_yaml(os.path.join(current_path,
     #                                 '../hypes_yaml/visualization.yaml'))
     params = load_yaml(os.path.join(current_path,
-                                    '../yamls/point_pillar_fcooper.yaml'))
+                                    '/mars/projects20/evibev_exp/v2vreal/cobevt/config.yaml'))
+    params['wild_setting']['loc_err'] = True
+    params['wild_setting']['xyz_std'] = 5
+    params['wild_setting']['rpy_std'] = 5
 
     opencda_dataset = IntermediateFusionDataset(params, visualize=True,
-                                            train=True, isSim=opt.isSim)
+                                            train=False, isSim=opt.isSim)
     data_loader = DataLoader(opencda_dataset, batch_size=1, num_workers=1,
                              collate_fn=opencda_dataset.collate_batch_train,
                              shuffle=False,
