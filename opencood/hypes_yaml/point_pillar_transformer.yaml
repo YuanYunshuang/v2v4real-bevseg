@@ -1,5 +1,5 @@
 # v2xvit
-name: point_pillar_mcwin_transformer_nocompression_half_hetero_rte_split_att
+name: v2xvit-v2vreal
 root_dir: '/koko/v2vreal/train'
 validate_dir: '/koko/v2vreal/test'
 log_dir: '/koko/v2vreal-out'
@@ -139,7 +139,7 @@ model:
           downsample_rate: 4
 
     decoder:
-      input_dim: 128
+      input_dim: 256
       num_layer: 2
       num_ch_dec: &decoder_block [ 64, 128 ]
 
@@ -170,6 +170,6 @@ lr_scheduler:
 #    warmup_lr: 2e-4
 #    warmup_epoches: 10
 #    lr_min: 2e-5
-    step_size: [30, 50]
+    step_size: [20, 50]
     gamma: 0.1
 

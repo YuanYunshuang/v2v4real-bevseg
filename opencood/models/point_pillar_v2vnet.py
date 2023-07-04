@@ -126,7 +126,7 @@ class PointPillarV2VNet(nn.Module):
 
         psm = self.cls_head(fused_feature)
         rm = self.reg_head(fused_feature)
-
+        output_dict = {}
         # dynamic head
         x = self.decoder(fused_feature.unsqueeze(1))
         x = rearrange(x, 'b l c h w -> (b l) c h w')

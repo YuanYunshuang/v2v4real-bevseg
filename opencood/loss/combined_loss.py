@@ -49,19 +49,36 @@ class CombinedLoss(nn.Module):
         reg_loss = self.loss_dict['reg_loss']
         conf_loss = self.loss_dict['conf_loss']
         dynamic_loss = self.loss_dict['dynamic_loss']
+        static_loss = self.loss_dict.get('static_loss', None)
+        if static_loss is None:
+            static_loss = torch.tensor(0.0)
         if pbar is None:
-            print("[epoch %d][%d/%d], || Loss: %.4f || Dynamic Loss: %.4f || Conf Loss: %.4f"
+            print("[epoch %d][%d/%d], || Loss: %.4f "
+                  "|| Dynamic Loss: %.4f || Static Loss: %.4f "
+                  "|| Conf Loss: %.4f"
                 " || Loc Loss: %.4f" % (
-                    epoch, batch_id + 1, batch_len, dynamic_loss.item(),
-                    total_loss.item(), conf_loss.item(), reg_loss.item()))
+                    epoch, batch_id + 1, batch_len, total_loss.item(),
+                    dynamic_loss.item(), static_loss.item(),
+                    conf_loss.item(), reg_loss.item()))
         else:
-            pbar.set_description("[epoch %d][%d/%d], || Loss: %.4f || Dynamic Loss: %.4f || Conf Loss: %.4f"
-                  " || Loc Loss: %.4f" % (
-                      epoch, batch_id + 1, batch_len, dynamic_loss.item(),
-                      total_loss.item(), conf_loss.item(), reg_loss.item()))
+            pbar.set_description("[epoch %d][%d/%d], || Loss: %.4f "
+                                 "|| Dynamic Loss: %.4f "
+                                 "|| Static Loss: %.4f "
+                                 "|| Conf Loss: %.4f"
+                                 " || Loc Loss: %.4f" % (
+                      epoch, batch_id + 1, batch_len, total_loss.item(),
+                      dynamic_loss.item(), static_loss.item(),
+                      conf_loss.item(), reg_loss.item()))
 
 
         writer.add_scalar('Regression_loss', reg_loss.item(),
                           epoch*batch_len + batch_id)
         writer.add_scalar('Confidence_loss', conf_loss.item(),
+                          epoch*batch_len + batch_id)
+        writer.add_scalar('Dynamic_loss', dynamic_loss.item(),
+                          epoch*batch_len + batch_id)
+        if static_loss > 0:
+            writer.add_scalar('Static_loss', static_loss.item(),
+                              epoch*batch_len + batch_id)
+        writer.add_scalar('Total_loss', total_loss.item(),
                           epoch*batch_len + batch_id)
