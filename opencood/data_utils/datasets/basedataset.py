@@ -411,7 +411,7 @@ class BaseDataset(Dataset):
         if not self.train:
             np.random.seed(self.seed)
         xyz_noise = np.random.normal(0, xyz_std, 3)
-        xyz_noise[2] = 0
+        # xyz_noise[2] = 0
         ryp_std = np.random.normal(0, ryp_std, 3)
         ryp_std[:2] = 0
         if isinstance(pose, list):
