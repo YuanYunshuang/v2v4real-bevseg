@@ -1,4 +1,4 @@
-name: corpbevtlidar-v2vreal
+name: cobevt-v2vreal
 root_dir: '/koko/v2vreal/train'
 validate_dir: '/koko/v2vreal/test'
 log_dir: '/koko/v2vreal/v2vreal-out'
