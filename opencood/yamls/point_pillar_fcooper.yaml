@@ -1,8 +1,8 @@
 name: fcooper-opv2v
 root_dir: '/koko/OPV2V/additional/train'
 validate_dir: '/koko/OPV2V/additional/test'
-log_dir: './logs'
-#log_dir: '/koko/v2vreal-out'
+#log_dir: './logs'
+log_dir: '/koko/v2vreal-out'
 load_camera: false
 com_range: 45
 
