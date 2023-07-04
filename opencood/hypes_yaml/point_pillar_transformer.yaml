@@ -2,7 +2,7 @@
 name: v2xvit-v2vreal
 root_dir: '/koko/v2vreal/train'
 validate_dir: '/koko/v2vreal/test'
-log_dir: '/koko/v2vreal-out'
+log_dir: './logs'
 
 wild_setting:
   async: false

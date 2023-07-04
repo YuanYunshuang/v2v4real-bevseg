@@ -41,7 +41,7 @@ class RelTemporalEncoding(nn.Module):
 
     def forward(self, x, t):
         # When t has unit of 50ms, rte_ratio=1. So we can train on 100ms but test on 50ms
-        return x + self.lin(self.emb(t * self.RTE_ratio)).unsqueeze(
+        return x + self.lin(self.emb((t * self.RTE_ratio).long())).unsqueeze(
             0).unsqueeze(1)
 
 
