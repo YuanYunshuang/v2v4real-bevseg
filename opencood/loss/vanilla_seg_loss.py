@@ -46,7 +46,7 @@ class VanillaSegLoss(nn.Module):
         if self.target == 'dynamic' or self.target != 'static':
             dynamic_pred = output_dict['dynamic_seg']
             # during training, we only need to compute the ego vehicle's gt loss
-            dynamic_gt = gt_dict['gt_dynamic'].long()
+            dynamic_gt = (gt_dict['gt_dynamic'] > 0).long()
             # dynamic_gt = rearrange(dynamic_gt, 'b l h w -> (b l) h w')
             # dynamic_gt = torch.stack([1 - dynamic_gt, dynamic_gt], dim=1).float()  # to one hot
             dynamic_pred = rearrange(dynamic_pred, 'b l c h w -> (b l) c h w')
@@ -54,7 +54,7 @@ class VanillaSegLoss(nn.Module):
             # import matplotlib.pyplot as plt
             # import numpy as np
             # img1 = dynamic_pred.softmax(1)[0, 1].detach().cpu().numpy()
-            # img2 = dynamic_gt[0, 1].detach().cpu().numpy()
+            # img2 = dynamic_gt[0].detach().cpu().numpy()
             # img = np.concatenate([img1, np.ones_like(img1[:10]) * 0.1, img2], axis=0)
             # plt.imshow(img)
             # plt.show()

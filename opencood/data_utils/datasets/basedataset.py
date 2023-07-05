@@ -275,7 +275,7 @@ class BaseDataset(Dataset):
             if os.path.exists(cav_content[timestamp_key_delay]['bev']):
                 bev_map = cv2.imread(cav_content[timestamp_key_delay]['bev'])
                 data[cav_id]['bev_map'] = \
-                    bev_map.astype(float) / 255
+                    bev_map.astype(float) / bev_map.max()
             data[cav_id]['folder_name'] = \
                 cav_content[timestamp_key_delay]['lidar'].split('/')[-3]
             data[cav_id]['index'] = timestamp_index

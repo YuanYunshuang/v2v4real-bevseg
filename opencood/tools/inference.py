@@ -124,8 +124,11 @@ def inference(opt, hypes, exp=""):
 
             if opt.save_evibev:
                 padding = ((0, 0), (1, 0))
-                pred_boxes = box_utils.corner_to_center(pred_box_tensor.detach().cpu().numpy())
-                pred_boxes = np.pad(pred_boxes, padding, mode='constant', constant_values=0)
+                if pred_box_tensor is None:
+                    pred_boxes = np.zeros((0, 8), dtype=float)
+                else:
+                    pred_boxes = box_utils.corner_to_center(pred_box_tensor.detach().cpu().numpy())
+                    pred_boxes = np.pad(pred_boxes, padding, mode='constant', constant_values=0)
                 gt_boxes = box_utils.corner_to_center(gt_box_tensor.detach().cpu().numpy())
                 gt_boxes = np.pad(gt_boxes, padding, mode='constant', constant_values=0)
                 evidence_dynamic = torch.stack([bev.permute(2, 1, 0) for bev in pred_dynamic_bev], dim=0)
@@ -133,9 +136,10 @@ def inference(opt, hypes, exp=""):
                     evidence_static= torch.stack([bev.permute(2, 1, 0) for bev in pred_static_bev], dim=0)
                 else:
                     evidence_static = None
-                device = pred_box_tensor.device
+                device = gt_box_tensor.device
                 cur_dict = {
                     'frame_id': batch_data['ego']['frame_id'],
+                    'ego_id': batch_data['ego']['ego_id'],
                     'detection': {
                         'pred_boxes': torch.from_numpy(pred_boxes).to(device),
                         'pred_scores': pred_score,

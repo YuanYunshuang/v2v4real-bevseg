@@ -212,6 +212,8 @@ class IntermediateFusionDataset(basedataset.BaseDataset):
             processed_data_dict['ego'].update({'origin_lidar':
                 np.vstack(
                     projected_lidar_stack)})
+
+        processed_data_dict['ego']['ego_id'] = ego_id
         if bev_map is None:
             bev_map = self.get_dynamic_bev_map(processed_data_dict)
             processed_data_dict['ego']['label_dict']['gt_dynamic'] = bev_map
@@ -458,7 +460,8 @@ class IntermediateFusionDataset(basedataset.BaseDataset):
                                    'prior_encoding': prior_encoding,
                                    'spatial_correction_matrix': spatial_correction_matrix_list,
                                    'pairwise_t_matrix': pairwise_t_matrix,
-                                   'frame_id': [b['ego']['frame_id'] for b in batch]})
+                                   'frame_id': [b['ego']['frame_id'] for b in batch],
+                                   'ego_id': [b['ego']['ego_id'] for b in batch]})
 
         if self.visualize:
             origin_lidar = \

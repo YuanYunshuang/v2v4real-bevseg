@@ -367,7 +367,8 @@ class VoxelPostprocessor(BasePostprocessor):
                 assert seg.shape[0] == 1
                 seg = seg[0, 0]  # c h w
                 pred_dbev_list.append(seg)
-            if 'static_seg' in output_dict[cav_id]:
+            if 'static_seg' in output_dict[cav_id] and \
+                    output_dict[cav_id]['static_seg'] is not None:
                 seg = output_dict[cav_id]['static_seg'].softmax(dim=2) # b l c h w
                 assert seg.shape[0] == 1
                 seg = seg[0, 0]  # c h w
