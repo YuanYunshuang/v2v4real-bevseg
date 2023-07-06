@@ -413,17 +413,17 @@ class BaseDataset(Dataset):
         xyz_noise = np.random.normal(0, xyz_std, 3)
         # xyz_noise[2] = 0
         ryp_noise = np.random.normal(0, ryp_std, 3)
-        ryp_noise[:2] = 0
+        ryp_noise[[0, 2]] = 0
         if isinstance(pose, list):
             noise_pose = [pose[0] + xyz_noise[0],
                           pose[1] + xyz_noise[1],
                           pose[2] + xyz_noise[2],
                           pose[3],
-                          pose[4] + ryp_noise[2],
+                          pose[4] + ryp_noise[1],
                           pose[5]]
         elif isinstance(pose, np.ndarray):
             noise_pose = np.eye(4)
-            rot_mat = R.from_euler('xyz', ryp_noise, degrees=True).as_matrix()
+            rot_mat = R.from_euler('xzy', ryp_noise, degrees=True).as_matrix()
             noise_pose[:3, :3] = rot_mat @ pose[:3, :3]
             noise_pose[:3, 3] = pose[:3, 3] + xyz_noise
         else:

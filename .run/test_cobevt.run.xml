@@ -13,7 +13,7 @@
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
     <option name="SCRIPT_NAME" value="tools/inference.py" />
-    <option name="PARAMETERS" value="--model_dir $PROJECT_DIR$/../evibev_exp/opv2v/fcooper --fusion_method intermediate --save_evibev" />
+    <option name="PARAMETERS" value="--model_dir $PROJECT_DIR$/../evibev_exp/v2vreal/cobevt --fusion_method intermediate --save_evibev --eval_loc_err" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <option name="MODULE_MODE" value="false" />

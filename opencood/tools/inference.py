@@ -320,12 +320,12 @@ def main(exp=None):
         exps[1:n+1, 0] = np.arange(1, 6) * 0.1
         exps[n+1:, 1] = np.arange(1, 11) * 0.1
 
-        for exp in exps[1:]:
+        for exp in exps[6:]:
             if exp is not None and exp.sum() > 0:
                 print('exp: ', exp)
                 hypes['wild_setting']['loc_err'] = True
                 hypes['wild_setting']['xyz_std'] = exp[0]
-                hypes['wild_setting']['rpy_std'] = exp[1]
+                hypes['wild_setting']['ryp_std'] = exp[1]
                 exp = f"{exp[0] * 10:.0f}-{exp[1] * 10:.0f}"
             else:
                 exp = ''
