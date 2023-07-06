@@ -8,7 +8,6 @@ com_range: 45
 
 wild_setting:
   async: false
-  async_mode: 'sim'
   async_overhead: 100
   seed: 20
   loc_err: false
@@ -17,6 +16,7 @@ wild_setting:
   data_size: 1.06 # Mb!!
   transmission_speed: 27 # Mbps!!
   backbone_delay: 10 # ms
+  com_range: 45
 
 yaml_parser: "load_point_pillar_params"
 train_params:
@@ -141,7 +141,7 @@ model:
           downsample_rate: 4
 
     decoder:
-      input_dim: 128
+      input_dim: 256
       num_layer: 2
       num_ch_dec: &decoder_block [ 64, 128 ]
 
