@@ -173,16 +173,14 @@ class BaseDataset(Dataset):
 
                     yaml_file = os.path.join(cav_path,
                                              timestamp + '.yaml')
+                    bev_file = os.path.join(cav_path,
+                                            timestamp + '_bev.png')
                     if self.data_name == 'v2vreal':
                         lidar_file = os.path.join(cav_path,
                                                   timestamp + '.pcd')
-                        bev_file = os.path.join(cav_path,
-                                                timestamp + '_bev_map.png')
                     elif self.data_name == 'opv2v':
                         lidar_file = os.path.join(cav_path,
-                                                  timestamp + '_semantic_lidarcenter.bin')
-                        bev_file = os.path.join(cav_path,
-                                                timestamp + '_bev_road.png')
+                                                  timestamp + '.bin')
                     else:
                         raise NotImplementedError
 
