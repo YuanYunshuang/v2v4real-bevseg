@@ -320,7 +320,7 @@ def main(exp=None):
         exps[1:n+1, 0] = np.arange(1, 6) * 0.1
         exps[n+1:, 1] = np.arange(1, 11) * 0.1
 
-        for exp in exps[1:6]:
+        for exp in exps:
             if exp is not None and exp.sum() > 0:
                 print('exp: ', exp)
                 hypes['wild_setting']['loc_err'] = True
