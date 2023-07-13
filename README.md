@@ -1,8 +1,8 @@
 # V2V4real with BEV map segmentation
 
 ## Introduction
-This repo is modified from the project [V2V4Real](https://github.com/ucla-mobility/V2V4Real) of [UCLA Mobility Lab](https://mobility-lab.seas.ucla.edu/).
-Check the original version on the [main branch](https://github.com/YuanYunshuang/v2v4real-bevseg/tree/main) or their official [page](https://research.seas.ucla.edu/mobility-lab/v2v4real/).
+This repo is modified from the project [V2V4Real](https://github.com/ucla-mobility/V2V4Real) and [CoBEVT](https://github.com/DerrickXuNu/CoBEVT) of [UCLA Mobility Lab](https://mobility-lab.seas.ucla.edu/).
+Check the original version on the [main branch](https://github.com/YuanYunshuang/v2v4real-bevseg/tree/main) or their official [page](https://research.seas.ucla.edu/mobility-lab/v2v4real/) for more details.
 
 
 ## Data Download
