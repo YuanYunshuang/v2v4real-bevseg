@@ -1,5 +1,5 @@
 #!/bin/bash --login
-#SBATCH --job-name=web-login/sys/myjobs/default/v2vreal
+#SBATCH --job-name=web-login/sys/myjobs/default/v2vreal_bev
 #SBATCH --time=00:10:00
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1

@@ -1,30 +1,32 @@
-name: point_pillar_v2vnet
-root_dir: '/koko/v2vreal/train'
-validate_dir: '/koko/v2vreal/test'
-log_dir: '/koko/v2vreal-out'
+name: corpbevtlidar-opv2v_bev
+root_dir: '/koko/OPV2V/additional/train'
+validate_dir: '/koko/OPV2V/additional/test'
+log_dir: '/koko/v2vreal_bev-out'
+load_camera: false
+com_range: 45
 
 wild_setting:
   async: false
-  async_mode: 'real'
   async_overhead: 100
   seed: 20
   loc_err: false
-  xyz_std: 0.2
-  ryp_std: 0.2
+  xyz_std: 1.0
+  ryp_std: 1.0
   data_size: 1.06 # Mb!!
   transmission_speed: 27 # Mbps!!
   backbone_delay: 10 # ms
+  com_range: 45
 
 yaml_parser: "load_point_pillar_params"
 train_params:
-  batch_size: &batch_size 4
+  batch_size: &batch_size 2
   epoches: &epoches 60
-  eval_freq: 1
+  eval_freq: 2
   save_freq: 1
-  max_cav: &max_cav 2
+  max_cav: &max_cav 7
 
 fusion:
-  core_method: 'IntermediateFusionDataset' # LateFusionDataset, EarlyFusionDataset, IntermediateFusionDataset, FeatureFusionDataset supported
+  core_method: 'IntermediateFusionDataset' # LateFusionDataset, EarlyFusionDataset, IntermediateFusionDataset supported
   args: []
 
 # preprocess-related
@@ -37,7 +39,7 @@ preprocess:
     max_voxel_train: 32000
     max_voxel_test: 70000
   # lidar range for each individual cav.
-  cav_lidar_range: &cav_lidar [-102.4, -38.4, -5, 102.4, 38.4, 3]
+  cav_lidar_range: &cav_lidar [-51.2, -51.2, -3, 51.2, 51.2, 3]
   bev_map_resolution: 0.4
 
 data_augment:
@@ -71,7 +73,7 @@ postprocess:
 
 # model related
 model:
-  core_method: point_pillar_v2vnet
+  core_method: point_pillar_fax
   args:
     voxel_size: *voxel_size
     lidar_range: *cav_lidar
@@ -79,7 +81,7 @@ model:
     max_cav: *max_cav
     compression: 0 # compression rate
     backbone_fix: false
-    target: &target 'dynamic'
+    target: &target 'all'
 
     pillar_vfe:
       use_norm: true
@@ -102,19 +104,16 @@ model:
       dim: [256]
       input_dim: 384 # 128 * 3
 
-    v2vfusion:
-      use_temporal_encoding: true
-      voxel_size: *voxel_size
-      downsample_rate: 4
-      num_iteration: 1
-      in_channels: 256
-      gru_flag: true
-      agg_operator: "avg" # max or avg
-      conv_gru:
-        H: 48
-        W: 128
-        num_layers: 1
-        kernel_size: [[3,3]]
+    fax_fusion:
+      input_dim: 256
+      mlp_dim: 256
+      agent_size: *max_cav
+      window_size: 4
+      dim_head: 32
+      drop_out: 0.1
+      depth: 3
+      mask: true
+
 
     decoder:
       input_dim: 256
@@ -131,13 +130,15 @@ loss:
       target: *target
       d_weights: 75.0
       d_coe: 2.0
+      s_weights: 1.0
+      s_coe: 1.0
     point_pillar_loss:
       cls_weight: 1.0
       reg: 2.0
 
 optimizer:
   core_method: Adam
-  lr: 0.002
+  lr: 0.001
   args:
     eps: 1e-10
     weight_decay: 1e-4

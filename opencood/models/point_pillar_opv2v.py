@@ -46,15 +46,16 @@ class PointPillarOPV2V(nn.Module):
         if args['backbone_fix']:
             self.backbone_fix()
 
-        # decoder params
-        decoder_params = args['decoder']
-        # decoder for dynamic and static differet
-        self.decoder = NaiveDecoder(decoder_params)
+        # decoder
+        if 'decoder' in args:
+            decoder_params = args['decoder']
+            # decoder for dynamic and static differet
+            self.decoder = NaiveDecoder(decoder_params)
 
-        self.target = args['target']
-        self.seg_head = BevSegHead(self.target,
-                                   args['seg_head_dim'],
-                                   args['output_class'])
+            self.target = args['target']
+            self.seg_head = BevSegHead(self.target,
+                                       args['seg_head_dim'],
+                                       args['output_class'])
 
     def backbone_fix(self):
         """
@@ -115,15 +116,14 @@ class PointPillarOPV2V(nn.Module):
         psm = self.cls_head(fused_feature)
         rm = self.reg_head(fused_feature)
 
-        # dynamic head
-        x = self.decoder(fused_feature.unsqueeze(1))
-        x = rearrange(x, 'b l c h w -> (b l) c h w')
-        b = x.shape[0]
-        output_dict = self.seg_head(x, b, 1)
+        output_dict = {'psm': psm,
+                       'rm': rm}
 
-        output_dict.update(
-            {'psm': psm,
-             'rm': rm}
-        )
+        if getattr(self, 'decoder', False):
+            # dynamic head
+            x = self.decoder(fused_feature.unsqueeze(1))
+            x = rearrange(x, 'b l c h w -> (b l) c h w')
+            b = x.shape[0]
+            output_dict.update(self.seg_head(x, b, 1))
 
         return output_dict

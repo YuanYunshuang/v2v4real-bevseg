@@ -1,6 +1,7 @@
-name: fcooper-opv2v
-root_dir: '/koko/OPV2V/additional/train'
-validate_dir: '/koko/OPV2V/additional/test'
+# attnfuse
+name: attnfuse-opv2v
+root_dir: '/koko/OPV2V/train'
+validate_dir: '/koko/OPV2V/test'
 #log_dir: './logs'
 log_dir: '/koko/v2vreal-out'
 load_camera: false
@@ -17,6 +18,7 @@ wild_setting:
   transmission_speed: 27 # Mbps!!
   backbone_delay: 10 # ms
   com_range: 45
+  sparse_gt: true
 
 yaml_parser: "load_point_pillar_params"
 train_params:
@@ -24,7 +26,7 @@ train_params:
   epoches: &epoches 60
   eval_freq: 1
   save_freq: 1
-  max_cav: &max_cav 7
+  max_cav: &max_cav 5
 
 fusion:
   core_method: 'IntermediateFusionDataset' # LateFusionDataset, EarlyFusionDataset, IntermediateFusionDataset supported
@@ -40,7 +42,7 @@ preprocess:
     max_voxel_train: 32000
     max_voxel_test: 70000
   # lidar range for each individual cav.
-  cav_lidar_range: &cav_lidar [-51.2, -51.2, -3, 51.2, 51.2, 3]
+  cav_lidar_range: &cav_lidar [-140.8, -38.4, -5, 140.8, 38.4, 3]
   bev_map_resolution: 0.4
 
 data_augment:
@@ -74,7 +76,7 @@ postprocess:
 
 # model related
 model:
-  core_method: point_pillar_fcooper
+  core_method: point_pillar_opv2v
   args:
     voxel_size: *voxel_size
     lidar_range: *cav_lidar
@@ -105,32 +107,37 @@ model:
       dim: [256]
       input_dim: 384 # 128 * 3
 
-      # add decoder later
+#    decoder:
+#      input_dim: 256
+#      num_layer: 2
+#      num_ch_dec: &decoder_block [ 64, 128 ]
+#
+#    seg_head_dim: 64
+#    output_class: 2
 
-    decoder:
-      input_dim: 256
-      num_layer: 2
-      num_ch_dec: &decoder_block [ 64, 128 ]
-
-    seg_head_dim: 64
-    output_class: 2
+#loss:
+#  core_method: combined_loss
+#  args:
+#    vanilla_seg_loss:
+#      target: *target
+#      d_weights: 75.0
+#      d_coe: 2.0
+#      s_weights: 1.0
+#      s_coe: 1.0
+#    point_pillar_loss:
+#      cls_weight: 1.0
+#      reg: 2.0
 
 loss:
-  core_method: combined_loss
+  core_method: point_pillar_loss
   args:
-    vanilla_seg_loss:
-      target: *target
-      d_weights: 75.0
-      d_coe: 2.0
-      s_weights: 1.0
-      s_coe: 1.0
-    point_pillar_loss:
-      cls_weight: 1.0
-      reg: 2.0
+    cls_weight: 1.0
+    reg: 2.0
+    sample_targets: true
 
 optimizer:
   core_method: Adam
-  lr: 0.002
+  lr: 0.001
   args:
     eps: 1e-10
     weight_decay: 1e-4
@@ -143,3 +150,4 @@ lr_scheduler:
 #    lr_min: 2e-5
     step_size: [30, 50]
     gamma: 0.1
+

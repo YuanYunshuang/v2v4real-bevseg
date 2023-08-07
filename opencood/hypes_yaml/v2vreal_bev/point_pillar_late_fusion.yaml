@@ -1,6 +1,6 @@
 name: point_pillar_late_fusion
-root_dir: '/data/v2vreal/train'
-validate_dir: '/data/v2vreal/validate'
+root_dir: '/data/v2vreal_bev/train'
+validate_dir: '/data/v2vreal_bev/validate'
 
 yaml_parser: "load_point_pillar_params"
 

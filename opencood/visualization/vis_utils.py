@@ -303,7 +303,7 @@ def color_encoding(intensity, mode='intensity'):
     color : np.ndarray
         Encoded Lidar color, shape (n, 3)
     """
-    assert mode in ['intensity', 'z-value', 'constant', 'v2vreal']
+    assert mode in ['intensity', 'z-value', 'constant', 'v2vreal_bev']
 
     if mode == 'intensity':
         intensity_col = 1.0 - np.log(intensity) / np.log(np.exp(-0.004 * 100))
@@ -331,7 +331,7 @@ def color_encoding(intensity, mode='intensity'):
         int_color[:, 1] *= 244 / 255
         int_color[:, 2] *= 237 / 255
 
-    elif mode == 'v2vreal':
+    elif mode == 'v2vreal_bev':
         int_color = np.zeros((intensity.shape[0], 3))
         int_color[intensity == 1, 0] = 197 / 255
         int_color[intensity == 1, 1] = 112 / 255
@@ -579,7 +579,7 @@ def visualize_single_sample_dataloader(batch_data,
         origin_lidar = origin_lidar[0]
     origin_lidar_intcolor = \
         color_encoding(origin_lidar[:, -1] if mode == 'intensity' or
-                                              mode == 'v2vreal'
+                                              mode == 'v2vreal_bev'
                        else origin_lidar[:, 2], mode=mode)
 
     # left -> right hand

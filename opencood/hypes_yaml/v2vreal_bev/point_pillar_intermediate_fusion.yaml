@@ -1,8 +1,8 @@
 #
 name: point_pillar_intermediate_fusion
-root_dir: '/koko/v2vreal/train'
-validate_dir: '/koko/v2vreal/test'
-log_dir: '/koko/v2vreal-out'
+root_dir: '/koko/v2vreal_bev/train'
+validate_dir: '/koko/v2vreal_bev/test'
+log_dir: '/koko/v2vreal_bev-out'
 
 
 yaml_parser: "load_point_pillar_params"

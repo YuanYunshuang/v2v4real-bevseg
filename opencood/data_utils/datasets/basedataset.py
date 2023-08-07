@@ -76,6 +76,7 @@ class BaseDataset(Dataset):
             self.backbone_delay = \
                 params['wild_setting']['backbone_delay'] \
                     if 'backbone_delay' in params['wild_setting'] else 0
+            self.sparse_gt = params['wild_setting']['sparse_gt']
 
         else:
             self.async_flag = False
@@ -87,6 +88,7 @@ class BaseDataset(Dataset):
             self.data_size = 0 # Mb
             self.transmission_speed = 27 # Mbps
             self.backbone_delay = 0 # ms
+            self.sparse_gt = False
 
         if self.train:
             root_dir = params['root_dir']
@@ -165,14 +167,19 @@ class BaseDataset(Dataset):
                     sorted([os.path.join(cav_path, x)
                             for x in os.listdir(cav_path) if
                             x.endswith('.yaml') and 'additional' not in x])
+                yaml_files = [x for x in yaml_files if 'sparse_gt' not in x]
+
                 timestamps = self.extract_timestamps(yaml_files)
 
                 for timestamp in timestamps:
                     self.scenario_database[i][cav_id][timestamp] = \
                         OrderedDict()
-
-                    yaml_file = os.path.join(cav_path,
-                                             timestamp + '.yaml')
+                    if self.sparse_gt:
+                        yaml_file = os.path.join(cav_path,
+                                                 timestamp + '_sparse_gt.yaml')
+                    else:
+                        yaml_file = os.path.join(cav_path,
+                                                 timestamp + '.yaml')
                     if self.data_name == 'v2vreal':
                         lidar_file = os.path.join(cav_path,
                                                   timestamp + '.pcd')
@@ -180,7 +187,7 @@ class BaseDataset(Dataset):
                                                 timestamp + '_bev_map.png')
                     elif self.data_name == 'opv2v':
                         lidar_file = os.path.join(cav_path,
-                                                  timestamp + '_semantic_lidarcenter.bin')
+                                                  timestamp + '.pcd')
                         bev_file = os.path.join(cav_path,
                                                 timestamp + '_bev_road.png')
                     else:

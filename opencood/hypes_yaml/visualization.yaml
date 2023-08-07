@@ -2,8 +2,8 @@
 name: visualization
 
 yaml_parser: "load_voxel_params"
-root_dir: '/koko/v2vreal/train'
-validate_dir: '/koko/v2vreal/test'
+root_dir: '/koko/v2vreal_bev/train'
+validate_dir: '/koko/v2vreal_bev/test'
 
 train_params:
   batch_size: &batch_size 4

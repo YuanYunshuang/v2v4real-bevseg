@@ -559,7 +559,7 @@ class IntermediateFusionDataset(basedataset.BaseDataset):
 
 
 if __name__ == '__main__':
-    params = load_yaml('/mars/projects20/V2V4Real/opencood/hypes_yaml/point_pillar_fax.yaml')
+    params = load_yaml('/opencood/hypes_yaml/v2vreal_bev/point_pillar_fax.yaml')
 
     opencda_dataset = IntermediateFusionDataset(params,
                                                 train=True,

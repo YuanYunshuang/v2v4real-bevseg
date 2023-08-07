@@ -1,7 +1,7 @@
-name: corpbevtlidar-opv2v
+name: corpbevtlidar-opv2v_bev
 root_dir: '/koko/OPV2V/additional/train'
 validate_dir: '/koko/OPV2V/additional/test'
-log_dir: '/koko/v2vreal-out'
+log_dir: '/koko/v2vreal_bev-out'
 load_camera: false
 com_range: 45
 

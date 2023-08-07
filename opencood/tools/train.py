@@ -29,7 +29,7 @@ def train_parser():
     parser.add_argument('--model_dir', default='',
                         help='Continued training path')
     parser.add_argument("--isSim", action='store_true',
-                        help="set True if use OPV2V, set False if use v2vreal.")
+                        help="set True if use OPV2V, set False if use v2vreal_bev.")
     parser.add_argument("--half", action='store_true',
                         help="whether train with half precision.")
     parser.add_argument('--dist_url', default='env://',

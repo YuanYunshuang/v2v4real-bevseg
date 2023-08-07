@@ -27,7 +27,7 @@ def pcd_to_np(pcd_file):
     """
     if pcd_file[-3:] == 'bin':
         pcd_np = np.fromfile(pcd_file, dtype="float32").reshape(-1, 4)
-        # in opv2v additional dataset, last column is cls labels,
+        # in opv2v_bev additional dataset, last column is cls labels,
         # they are not needd in this frame work, set to 0
         pcd_np[:, -1] = 0
     else:  # extension .pcd

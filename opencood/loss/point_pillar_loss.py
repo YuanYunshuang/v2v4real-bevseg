@@ -74,6 +74,7 @@ class PointPillarLoss(nn.Module):
 
         self.cls_weight = args['cls_weight']
         self.reg_coe = args['reg']
+        self.sample_targets = args.get('sample_targets', False)
         self.loss_dict = {}
 
     def forward(self, output_dict, target_dict):
@@ -90,10 +91,18 @@ class PointPillarLoss(nn.Module):
         cls_preds = psm.permute(0, 2, 3, 1).contiguous()
 
         box_cls_labels = target_dict['pos_equal_one']
-        box_cls_labels = box_cls_labels.view(psm.shape[0], -1).contiguous()
         box_cls_labels_neg = target_dict['neg_equal_one']
+
+        box_cls_labels = box_cls_labels.view(psm.shape[0], -1).contiguous()
         box_cls_labels_neg = \
             box_cls_labels_neg.view(psm.shape[0], -1).contiguous()
+        if self.sample_targets:
+            for b in range(box_cls_labels.shape[0]):
+                num_pos = box_cls_labels[b].sum().int().item()
+                neg_indices = torch.where(box_cls_labels_neg[b])[0]
+                perm = torch.randperm(len(neg_indices))[num_pos * 2:]
+                drop = neg_indices[perm]
+                box_cls_labels_neg[torch.ones(len(drop)).long() * b, drop] = 0
 
         positives = box_cls_labels > 0
         negatives = box_cls_labels_neg > 0
@@ -102,9 +111,11 @@ class PointPillarLoss(nn.Module):
         cls_weights = (negative_cls_weights + 1.0 * positives).float()
         reg_weights = positives.float()
 
-        pos_normalizer = positives.sum(1, keepdim=True).float()
-        reg_weights /= torch.clamp(pos_normalizer, min=1.0)
-        cls_weights /= torch.clamp(pos_normalizer, min=1.0)
+        if not self.sample_targets:
+            pos_normalizer = positives.sum(1, keepdim=True).float()
+            reg_weights /= torch.clamp(pos_normalizer, min=1.0)
+            cls_weights /= torch.clamp(pos_normalizer, min=1.0)
+
         cls_targets = box_cls_labels
         cls_targets = cls_targets.unsqueeze(dim=-1)
 
